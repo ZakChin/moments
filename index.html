@@ -2201,7 +2201,7 @@ body::after {
     var liked = C.isLiked(post.id)
     return [
       '<button class="like' + (liked ? ' is-liked' : '') + '" type="button" data-like="' + escape(post.id) + '" aria-pressed="' + (liked ? 'true' : 'false') + '" aria-label="点赞">',
-      '<span class="heart">♥</span>',
+      '<span class="heart" aria-hidden="true"></span>',
       '<span class="like-count">' + count + '</span>',
       '</button>',
     ].join('')
@@ -2293,8 +2293,11 @@ body::after {
       state.likes[postId] = data.count
       updateLikeUI()
       updateStatsUI()
-    } catch (_) {
-      showToast('点赞失败，稍后再试')
+    } catch (error) {
+      var message = String((error && error.message) || '')
+      showToast(/Failed to fetch|NetworkError|Load failed/i.test(message)
+        ? '连不上点赞服务，检查手机网络'
+        : '点赞失败，稍后再试')
     } finally {
       state.likeBusy[postId] = false
     }
@@ -2459,7 +2462,9 @@ body::after {
         var raw = error && error.message ? String(error.message) : ''
         state.commentsError = error && (error.name === 'AbortError' || /aborted|abort/i.test(raw))
           ? '评论加载超时了，点下面重新读取'
-          : (raw || '评论读取失败')
+          : (/Failed to fetch|NetworkError|Load failed/i.test(raw)
+            ? '连不上评论服务，检查手机网络后点重新读取'
+            : (raw || '评论读取失败'))
       }
     } finally {
       if (state.currentPost && state.currentPost.id === id) {
