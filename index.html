@@ -1681,7 +1681,8 @@ body::after {
         remaining -= 1
         if (!remaining) {
           settled = true
-          var err = new Error('媒体读取失败')
+          var reason = last && last.message ? '（' + String(last.message).slice(0, 80) + '）' : ''
+          var err = new Error('媒体读取失败' + reason)
           err.cause = last
           reject(err)
         }
