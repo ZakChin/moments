@@ -545,8 +545,13 @@ body::after {
   grid-template-columns: minmax(0, 340px);
 }
 
-.grid.two {
+.grid.two,
+.grid.four {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid.four {
+  max-width: 560px;
 }
 
 .thumb {
@@ -1109,6 +1114,16 @@ body::after {
   letter-spacing: .05em;
 }
 
+.detail-error {
+  max-width: 280px;
+  color: #ff9a9a;
+  font-size: 10.5px;
+  line-height: 1.5;
+  text-align: center;
+  letter-spacing: 0;
+  word-break: break-word;
+}
+
 .loader {
   width: 28px;
   height: 28px;
@@ -1623,20 +1638,27 @@ body::after {
     return out
   }
 
-  async function fetchMedia(item) {
+  function fetchMedia(item) {
     var sources = mediaSources(item)
-    var last = null
-    for (var i = 0; i < sources.length; i += 1) {
-      try {
-        var bytes = await fetchBytes(sources[i], { timeout: 12000, cache: 'force-cache' })
-        return new Uint8Array(bytes)
-      } catch (error) {
-        last = error
-      }
-    }
-    var err = new Error('媒体读取失败')
-    err.cause = last
-    throw err
+    if (!sources.length) return Promise.reject(new Error('媒体地址为空'))
+    return new Promise(function (resolve, reject) {
+      var remaining = sources.length
+      var last = null
+      sources.forEach(function (url) {
+        fetchBytes(url, { timeout: 12000, cache: 'force-cache' }).then(
+          function (bytes) { resolve(new Uint8Array(bytes)) },
+          function (error) {
+            last = error
+            remaining -= 1
+            if (!remaining) {
+              var err = new Error('媒体读取失败')
+              err.cause = last
+              reject(err)
+            }
+          }
+        )
+      })
+    })
   }
 
   async function decryptMedia(bytes, key, item) {
@@ -2009,6 +2031,8 @@ body::after {
     ctx: null,
     source: null,
     gain: null,
+    el: null,
+    url: null,
     postId: null,
     mediaId: null,
     playing: false,
@@ -2167,7 +2191,7 @@ body::after {
   function mediaGrid(post) {
     var media = Array.isArray(post.media) ? post.media : []
     if (!media.length) return ''
-    var cls = media.length === 1 ? ' one' : media.length === 2 ? ' two' : ''
+    var cls = media.length === 1 ? ' one' : media.length === 2 ? ' two' : media.length === 3 ? ' three' : media.length === 4 ? ' four' : ''
     var html = ['<div class="grid' + cls + '">']
     media.forEach(function (item, index) {
       var bg = item.thumb ? "background-image:url('" + escape(item.thumb) + "')" : ''
@@ -2733,7 +2757,6 @@ body::after {
           renderBurn(stage, '这张闪照已经被看过了')
           return
         }
-        C.burnFlash(state.secret, item.id)
         var mediaKey = await crypto.subtle.importKey(
           'raw',
           C.b64urlToBytes(flashKey),
@@ -2748,11 +2771,11 @@ body::after {
           showToast('这张闪照现在不能查看')
           return
         }
-        C.burnFlash(state.secret, item.id)
         blob = await getBlob(item)
       }
 
       var decoded = await decodeBlob(blob)
+      C.burnFlash(state.secret, item.id)
       state.flashViewing = true
       var wrap = document.createElement('div')
       wrap.className = 'flash-view'
@@ -2775,7 +2798,13 @@ body::after {
       stage.appendChild(count)
       startFlashCountdown(stage, ring, count)
     } catch (error) {
-      stage.innerHTML = '<div class="detail-loading"><span>闪照读取失败</span></div>'
+      console.error('[moments] flash failed', error)
+      var reason = error && error.message ? String(error.message).slice(0, 90) : ''
+      stage.innerHTML = [
+        '<div class="detail-loading"><span>闪照读取失败</span>',
+        reason ? '<small class="detail-error">' + escape(reason) + '</small>' : '',
+        '</div>',
+      ].join('')
     } finally {
       state.flashLoading = false
     }
@@ -2849,20 +2878,45 @@ body::after {
     if (!post || !post.music) return
     if (audio.playing && audio.postId === post.id) return
     await unlockAudio()
-    var ctx = audio.ctx
-    if (!ctx) throw new Error('no audio')
     stopMusic()
-    var buffer = await getAudioBuffer(post.music)
-    var source = ctx.createBufferSource()
-    var gain = ctx.createGain()
-    gain.gain.value = 0.82
-    source.buffer = buffer
-    source.loop = true
-    source.connect(gain)
-    gain.connect(ctx.destination)
-    source.start(0)
-    audio.source = source
-    audio.gain = gain
+
+    // Prefer Web Audio (seamless looping), but fall back to an <audio>
+    // element: some mobile browsers refuse decodeAudioData for MP3.
+    try {
+      var ctx = audio.ctx
+      if (!ctx) throw new Error('no audio context')
+      var buffer = await getAudioBuffer(post.music)
+      var source = ctx.createBufferSource()
+      var gain = ctx.createGain()
+      gain.gain.value = 0.82
+      source.buffer = buffer
+      source.loop = true
+      source.connect(gain)
+      gain.connect(ctx.destination)
+      source.start(0)
+      audio.source = source
+      audio.gain = gain
+      audio.postId = post.id
+      audio.mediaId = post.music.id
+      audio.playing = true
+      updateMusicUI()
+      return
+    } catch (_) {}
+
+    var blob = await getBlob(post.music)
+    var url = URL.createObjectURL(blob)
+    var el = new Audio(url)
+    el.loop = true
+    el.volume = 0.82
+    try {
+      var played = el.play()
+      if (played && played.then) await played
+    } catch (error) {
+      try { URL.revokeObjectURL(url) } catch (_) {}
+      throw error
+    }
+    audio.el = el
+    audio.url = url
     audio.postId = post.id
     audio.mediaId = post.music.id
     audio.playing = true
@@ -2877,8 +2931,18 @@ body::after {
     if (audio.gain) {
       try { audio.gain.disconnect() } catch (_) {}
     }
+    if (audio.el) {
+      try { audio.el.pause() } catch (_) {}
+      try { audio.el.removeAttribute('src') } catch (_) {}
+      try { audio.el.load() } catch (_) {}
+    }
+    if (audio.url) {
+      try { URL.revokeObjectURL(audio.url) } catch (_) {}
+    }
     audio.source = null
     audio.gain = null
+    audio.el = null
+    audio.url = null
     audio.postId = null
     audio.mediaId = null
     audio.playing = false
