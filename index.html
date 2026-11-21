@@ -1598,6 +1598,7 @@ body::after {
     var timer = setTimeout(function () { controller.abort() }, ms)
     return {
       signal: controller.signal,
+      abort: function () { controller.abort() },
       done: function () { clearTimeout(timer) },
     }
   }
@@ -1605,6 +1606,12 @@ body::after {
   async function fetchBytes(url, options) {
     var opts = options || {}
     var timeout = withTimeout(opts.timeout || 9000)
+    var parent = opts.signal
+    var onAbort = function () { timeout.abort() }
+    if (parent) {
+      if (parent.aborted) timeout.abort()
+      else parent.addEventListener('abort', onAbort, { once: true })
+    }
     try {
       var res = await fetch(url, {
         method: 'GET',
@@ -1616,6 +1623,7 @@ body::after {
       return await res.arrayBuffer()
     } finally {
       timeout.done()
+      if (parent) parent.removeEventListener('abort', onAbort)
     }
   }
 
@@ -1662,20 +1670,34 @@ body::after {
     var sources = mediaSources(item)
     if (!sources.length) return Promise.reject(new Error('媒体地址为空'))
     return new Promise(function (resolve, reject) {
+      var controller = new AbortController()
+      var settled = false
       var remaining = sources.length
       var last = null
+      function failed(error) {
+        if (settled) return
+        last = error
+        remaining -= 1
+        if (!remaining) {
+          settled = true
+          var err = new Error('媒体读取失败')
+          err.cause = last
+          reject(err)
+        }
+      }
       sources.forEach(function (url) {
-        fetchBytes(url, { timeout: 12000, cache: 'force-cache' }).then(
-          function (bytes) { resolve(new Uint8Array(bytes)) },
-          function (error) {
-            last = error
-            remaining -= 1
-            if (!remaining) {
-              var err = new Error('媒体读取失败')
-              err.cause = last
-              reject(err)
-            }
-          }
+        fetchBytes(url, {
+          timeout: 12000,
+          cache: 'force-cache',
+          signal: controller.signal,
+        }).then(
+          function (bytes) {
+            if (settled) return
+            settled = true
+            controller.abort()
+            resolve(new Uint8Array(bytes))
+          },
+          failed
         )
       })
     })
