@@ -2908,6 +2908,9 @@ body::after {
     var el = new Audio(url)
     el.loop = true
     el.volume = 0.82
+    el.setAttribute('playsinline', '')
+    el.style.display = 'none'
+    document.body.appendChild(el)
     try {
       var played = el.play()
       if (played && played.then) await played
