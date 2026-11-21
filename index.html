@@ -802,7 +802,11 @@ body::after {
   width: 100%;
   max-width: var(--content);
   margin: 0 auto;
-  padding: 4px 14px 54px;
+  padding: 2px 14px 22px;
+}
+
+.comments[hidden] {
+  display: none;
 }
 
 .comments-head {
@@ -1097,12 +1101,28 @@ body::after {
   width: 100%;
   max-width: var(--content);
   margin: 0 auto;
-  padding: 6px 14px 24px;
+  padding: 0 14px 10px;
 }
 
 .detail-foot .music {
   width: 100%;
   justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-actions .like,
+.detail-actions .comment-link {
+  margin: 0;
+}
+
+.detail-comment-toggle {
+  color: var(--muted);
 }
 
 .detail-loading {
@@ -2025,6 +2045,8 @@ body::after {
     comments: [],
     commentsLoading: false,
     commentsError: '',
+    commentsOpen: false,
+    commentsPostId: '',
     commentBusy: false,
   }
 
@@ -2243,7 +2265,19 @@ body::after {
       '<button class="comment-link" type="button" data-comment-post="' + escape(post.id) + '" aria-label="查看评论">',
       '<span class="bubble">☰</span>',
       '<span>评论</span>',
-      '<span class="comment-count" data-comment-count="' + escape(post.id) + '">' + (count > 0 ? count : '') + '</span>',
+      '<span class="comment-count" data-comment-count="' + escape(post.id) + '">' + count + '</span>',
+      '</button>',
+    ].join('')
+  }
+
+  function detailCommentButtonHtml(post) {
+    if (!CFG.flashEndpoint || !CFG.siteId) return ''
+    var count = commentCount(post)
+    return [
+      '<button class="comment-link detail-comment-toggle" type="button" aria-label="查看评论">',
+      '<span class="bubble">☰</span>',
+      '<span>评论</span>',
+      '<span class="comment-count" data-comment-count="' + escape(post.id) + '">' + count + '</span>',
       '</button>',
     ].join('')
   }
@@ -2257,7 +2291,7 @@ body::after {
     for (var i = 0; i < nodes.length; i += 1) {
       var id = nodes[i].getAttribute('data-comment-count')
       var count = Number(state.commentCounts[id] || 0)
-      nodes[i].textContent = count > 0 ? String(count) : ''
+      nodes[i].textContent = String(count)
     }
   }
 
@@ -2431,6 +2465,11 @@ body::after {
     var box = document.getElementById('detail-comments')
     var post = state.currentPost
     if (!box || !post) return
+    if (!state.commentsOpen) {
+      box.hidden = true
+      return
+    }
+    box.hidden = false
     if (!CFG.flashEndpoint || !CFG.siteId) {
       box.innerHTML = '<p class="comments-empty">评论服务还未连接</p>'
       return
@@ -2470,9 +2509,26 @@ body::after {
     box.innerHTML = html.join('')
   }
 
+  function toggleComments(force) {
+    var post = state.currentPost
+    var box = document.getElementById('detail-comments')
+    if (!post || !box) return
+    var open = typeof force === 'boolean' ? force : !state.commentsOpen
+    state.commentsOpen = open
+    box.hidden = !open
+    if (!open) return
+    renderComments()
+    if (state.commentsPostId !== post.id || state.commentsError) loadCommentsFor(post)
+    setTimeout(function () {
+      var current = document.getElementById('detail-comments')
+      if (current && state.commentsOpen) current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 40)
+  }
+
   async function loadCommentsFor(post) {
     if (!post) return
     var id = post.id
+    state.commentsPostId = id
     state.comments = []
     state.commentsError = ''
     state.commentsLoading = true
@@ -2542,6 +2598,8 @@ body::after {
     state.currentPost = post
     state.currentIndex = Math.max(0, Math.min(index || 0, (post.media || []).length - 1))
     state.flashViewing = false
+    state.commentsOpen = false
+    state.commentsPostId = ''
     clearFlashTimer()
 
     var existing = document.getElementById('overlay')
@@ -2560,7 +2618,7 @@ body::after {
       '<div class="detail-body"><div class="stage" id="detail-stage"></div></div>',
       '<div class="detail-caption" id="detail-caption"></div>',
       '<div class="detail-foot" id="detail-foot"></div>',
-      '<section class="comments" id="detail-comments"></section>',
+      '<section class="comments" id="detail-comments" hidden></section>',
     ].join('')
     document.body.appendChild(overlay)
     document.body.classList.add('has-overlay')
@@ -2581,7 +2639,6 @@ body::after {
     if (caption) caption.textContent = post.text || ''
     renderDetailFoot()
     renderDetailMedia()
-    loadCommentsFor(post)
 
     if (!replace) {
       try { history.pushState({ moment: true }, '', hashFor(post, state.currentIndex)) } catch (_) {}
@@ -2604,7 +2661,7 @@ body::after {
       foot.innerHTML = ''
       return
     }
-    foot.innerHTML = musicHtml(post) + likeHtml(post)
+    foot.innerHTML = musicHtml(post) + '<div class="detail-actions">' + likeHtml(post) + detailCommentButtonHtml(post) + '</div>'
   }
 
   function updateDetailCounter() {
@@ -2852,6 +2909,8 @@ body::after {
     state.currentIndex = 0
     state.comments = []
     state.commentsError = ''
+    state.commentsOpen = false
+    state.commentsPostId = ''
     var fromPop = options && options.fromPop
     if (!fromPop) {
       try {
@@ -2984,15 +3043,17 @@ body::after {
       toggleLike(like.getAttribute('data-like'))
       return
     }
+    var detailToggle = event.target.closest && event.target.closest('.detail-comment-toggle')
+    if (detailToggle) {
+      toggleComments()
+      return
+    }
     var commentLink = event.target.closest && event.target.closest('.comment-link[data-comment-post]')
     if (commentLink) {
       var commentPost = findPost(commentLink.getAttribute('data-comment-post'))
       if (commentPost) {
         openPost(commentPost, 0, false)
-        setTimeout(function () {
-          var box = document.getElementById('detail-comments')
-          if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }, 60)
+        setTimeout(function () { toggleComments(true) }, 60)
       }
       return
     }
