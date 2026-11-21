@@ -406,15 +406,28 @@ body::after {
   text-overflow: ellipsis;
 }
 
-.count {
+.stats {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   flex: 0 0 auto;
-  padding: 5px 9px;
+}
+
+.stat {
+  padding: 5px 8px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: var(--faint);
-  font-size: 11px;
-  letter-spacing: .04em;
+  font-size: 10.5px;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+
+.stat b {
+  color: var(--text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .scroll-line {
@@ -723,6 +736,173 @@ body::after {
   margin-top: 14px;
 }
 
+.post-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.post-actions .like,
+.post-actions .comment-link {
+  margin: 0;
+}
+
+.comment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .025);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.comment-link:hover {
+  border-color: rgba(255, 255, 255, .18);
+  color: var(--text);
+}
+
+.comment-link:active {
+  transform: scale(.96);
+}
+
+.comment-link .bubble {
+  font-size: 12px;
+  opacity: .8;
+}
+
+.comment-count:empty {
+  display: none;
+}
+
+.comments {
+  width: 100%;
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 4px 14px 54px;
+}
+
+.comments-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .06em;
+}
+
+.comments-head b {
+  color: var(--text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.comments-empty {
+  margin: 18px 0;
+  color: var(--faint);
+  font-size: 12px;
+  text-align: center;
+}
+
+.comment-error {
+  margin: 12px 0;
+  color: #ff8fb2;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.comment-list {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.comment {
+  padding: 12px 13px;
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .022);
+}
+
+.comment p {
+  margin: 0;
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comment time {
+  display: block;
+  margin-top: 7px;
+  color: var(--faint);
+  font-size: 10.5px;
+  letter-spacing: .03em;
+}
+
+.comment-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.comment-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 46px;
+  max-height: 130px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .03);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+}
+
+.comment-input:focus {
+  border-color: rgba(255, 255, 255, .26);
+}
+
+.comment-send {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gradient);
+  background-size: 300% 100%;
+  color: #0a0a0f;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.comment-send:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.comment-hint {
+  margin: 8px 2px 0;
+  color: var(--faint);
+  font-size: 10.5px;
+}
+
 .empty {
   padding: 70px 0 50px;
   text-align: center;
@@ -768,6 +948,8 @@ body::after {
 .overlay.is-open {
   opacity: 1;
   visibility: visible;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .detail-progress {
@@ -1144,9 +1326,26 @@ body::after {
     font-size: 11.5px;
   }
 
-  .count {
-    font-size: 10px;
-    padding: 4px 8px;
+  .stats {
+    gap: 6px;
+  }
+
+  .stat {
+    font-size: 9.5px;
+    padding: 4px 7px;
+  }
+
+  .comments {
+    padding: 4px 16px 46px;
+  }
+
+  .comment-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .comment-send {
+    align-self: flex-end;
   }
 
   .day {
@@ -1539,6 +1738,79 @@ body::after {
     }
   }
 
+  function commentId() {
+    var bytes = new Uint8Array(12)
+    crypto.getRandomValues(bytes)
+    return bytesToB64(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  }
+
+  async function loadComments(postId) {
+    if (!CFG.flashEndpoint || !CFG.siteId) return []
+    var timeout = withTimeout(9000)
+    try {
+      var response = await fetch(
+        apiUrl('/v1/comments?siteId=' + encodeURIComponent(CFG.siteId) + '&postId=' + encodeURIComponent(postId)),
+        { credentials: 'omit', cache: 'no-store', signal: timeout.signal }
+      )
+      if (!response.ok) throw new Error('评论服务返回 HTTP ' + response.status)
+      var data = await response.json()
+      return Array.isArray(data && data.comments) ? data.comments : []
+    } finally {
+      timeout.done()
+    }
+  }
+
+  async function addComment(postId, body) {
+    if (!CFG.flashEndpoint || !CFG.siteId) throw new Error('评论服务未配置')
+    var text = String(body == null ? '' : body).replace(/\r\n/g, '\n').trim()
+    if (!text) throw new Error('评论不能为空')
+    if (Array.from(text).length > 280) throw new Error('评论最多 280 字')
+    var hash = await visitorHash()
+    var timeout = withTimeout(9000)
+    try {
+      var response = await fetch(apiUrl('/v1/comment'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          siteId: CFG.siteId,
+          postId: postId,
+          commentId: commentId(),
+          body: text,
+          visitorHash: hash,
+        }),
+        credentials: 'omit',
+        cache: 'no-store',
+        signal: timeout.signal,
+      })
+      var data = null
+      try { data = await response.json() } catch (_) {}
+      if (!response.ok) {
+        if (response.status === 429) throw new Error('发得太快了，缓一缓')
+        if (response.status === 400 && data && data.error === 'bad_comment') throw new Error('评论最多 280 字')
+        throw new Error('评论服务返回 HTTP ' + response.status)
+      }
+      return data && data.comment ? data.comment : null
+    } finally {
+      timeout.done()
+    }
+  }
+
+  async function loadCommentCounts() {
+    if (!CFG.flashEndpoint || !CFG.siteId) return {}
+    var timeout = withTimeout(9000)
+    try {
+      var response = await fetch(
+        apiUrl('/v1/comments/counts?siteId=' + encodeURIComponent(CFG.siteId)),
+        { credentials: 'omit', cache: 'no-store', signal: timeout.signal }
+      )
+      if (!response.ok) throw new Error('评论服务返回 HTTP ' + response.status)
+      var data = await response.json()
+      return data && data.counts && typeof data.counts === 'object' ? data.counts : {}
+    } finally {
+      timeout.done()
+    }
+  }
+
   function escapeHtml(value) {
     return String(value == null ? '' : value)
       .replace(/&/g, '&amp;')
@@ -1659,6 +1931,9 @@ body::after {
     loadLikes: loadLikes,
     setLike: setLike,
     isLiked: isLiked,
+    loadComments: loadComments,
+    addComment: addComment,
+    loadCommentCounts: loadCommentCounts,
     mediaSources: mediaSources,
     escapeHtml: escapeHtml,
     greeting: greeting,
@@ -1698,6 +1973,11 @@ body::after {
     flashLoading: false,
     likes: {},
     likeBusy: {},
+    commentCounts: {},
+    comments: [],
+    commentsLoading: false,
+    commentsError: '',
+    commentBusy: false,
   }
 
   var audio = {
@@ -1902,6 +2182,58 @@ body::after {
     ].join('')
   }
 
+  function commentCount(post) {
+    return Number(state.commentCounts[post.id] || 0)
+  }
+
+  function commentButtonHtml(post) {
+    if (!CFG.flashEndpoint || !CFG.siteId) return ''
+    var count = commentCount(post)
+    return [
+      '<button class="comment-link" type="button" data-comment-post="' + escape(post.id) + '" aria-label="查看评论">',
+      '<span class="bubble">☰</span>',
+      '<span>评论</span>',
+      '<span class="comment-count" data-comment-count="' + escape(post.id) + '">' + (count > 0 ? count : '') + '</span>',
+      '</button>',
+    ].join('')
+  }
+
+  function actionsHtml(post) {
+    return '<div class="post-actions">' + likeHtml(post) + commentButtonHtml(post) + '</div>'
+  }
+
+  function updateCommentCountsUI() {
+    var nodes = document.querySelectorAll('[data-comment-count]')
+    for (var i = 0; i < nodes.length; i += 1) {
+      var id = nodes[i].getAttribute('data-comment-count')
+      var count = Number(state.commentCounts[id] || 0)
+      nodes[i].textContent = count > 0 ? String(count) : ''
+    }
+  }
+
+  function totalLikes() {
+    var total = 0
+    Object.keys(state.likes).forEach(function (id) {
+      total += Number(state.likes[id] || 0)
+    })
+    return total
+  }
+
+  function totalComments() {
+    var total = 0
+    Object.keys(state.commentCounts).forEach(function (id) {
+      total += Number(state.commentCounts[id] || 0)
+    })
+    return total
+  }
+
+  function updateStatsUI() {
+    var likes = document.getElementById('total-likes')
+    var comments = document.getElementById('total-comments')
+    if (likes) likes.textContent = String(totalLikes())
+    if (comments) comments.textContent = String(totalComments())
+  }
+
   function updateLikeUI() {
     var nodes = document.querySelectorAll('[data-like]')
     for (var i = 0; i < nodes.length; i += 1) {
@@ -1917,12 +2249,15 @@ body::after {
 
   async function refreshLikes() {
     if (!CFG.flashEndpoint || !CFG.siteId) return
-    try {
-      state.likes = await C.loadLikes()
-      updateLikeUI()
-    } catch (_) {
-      /* 点赞是锦上添花，服务不可用时保持安静 */
-    }
+    var likes = null
+    var comments = null
+    try { likes = await C.loadLikes() } catch (_) { /* 服务不可用时保持安静 */ }
+    try { comments = await C.loadCommentCounts() } catch (_) { /* 同上 */ }
+    if (likes) state.likes = likes
+    if (comments) state.commentCounts = comments
+    updateLikeUI()
+    updateCommentCountsUI()
+    updateStatsUI()
   }
 
   async function toggleLike(postId) {
@@ -1932,6 +2267,7 @@ body::after {
       var data = await C.setLike(postId, C.isLiked(postId))
       state.likes[postId] = data.count
       updateLikeUI()
+      updateStatsUI()
     } catch (_) {
       showToast('点赞失败，稍后再试')
     } finally {
@@ -1952,7 +2288,11 @@ body::after {
       '<h1>' + escape(profile.title || '我的朋友圈') + '</h1>',
       '<p>' + escape(profile.bio || '') + '</p>',
       '</div>',
-      '<span class="count">' + state.posts.length + '</span>',
+      '<div class="stats">',
+      '<span class="stat"><b>' + state.posts.length + '</b> 条</span>',
+      '<span class="stat"><b id="total-likes">0</b> 赞</span>',
+      '<span class="stat"><b id="total-comments">0</b> 评论</span>',
+      '</div>',
       '</header>',
       '<div class="scroll-line"><i id="scroll-fill"></i></div>',
       '<main class="feed">',
@@ -1970,7 +2310,7 @@ body::after {
           if (post.text) html.push('<p class="post-text">' + escape(post.text) + '</p>')
           html.push(mediaGrid(post))
           html.push(musicHtml(post))
-          html.push(likeHtml(post))
+          html.push(actionsHtml(post))
           html.push('</article>')
         })
         html.push('</div></section>')
@@ -1979,6 +2319,9 @@ body::after {
 
     html.push('</main></div>')
     root.innerHTML = html.join('')
+    updateLikeUI()
+    updateCommentCountsUI()
+    updateStatsUI()
 
     var fill = document.getElementById('scroll-fill')
     function updateScroll() {
@@ -2019,6 +2362,120 @@ body::after {
     return '#p=' + state.secret + '&post=' + encodeURIComponent(post.id) + '&i=' + index
   }
 
+  function commentTime(seconds) {
+    var value = Number(seconds) * 1000
+    if (!value) return ''
+    try {
+      return new Date(value).toLocaleString('zh-CN', {
+        month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      })
+    } catch (_) {
+      return ''
+    }
+  }
+
+  function renderComments() {
+    var box = document.getElementById('detail-comments')
+    var post = state.currentPost
+    if (!box || !post) return
+    if (!CFG.flashEndpoint || !CFG.siteId) {
+      box.innerHTML = '<p class="comments-empty">评论服务还未连接</p>'
+      return
+    }
+    var count = state.comments.length || commentCount(post)
+    var html = [
+      '<div class="comments-head"><span>评论</span><b data-comment-total>' + count + '</b></div>',
+    ]
+    if (state.commentsLoading) {
+      html.push('<p class="comments-empty">正在读取评论…</p>')
+    } else if (state.commentsError) {
+      html.push('<p class="comment-error">' + escape(state.commentsError) + '</p>')
+    } else if (!state.comments.length) {
+      html.push('<p class="comments-empty">还没有评论，说第一句吧。</p>')
+    } else {
+      html.push('<div class="comment-list">')
+      state.comments.forEach(function (comment) {
+        html.push(
+          '<article class="comment">',
+          '<p>' + escape(comment.body) + '</p>',
+          '<time>' + escape(commentTime(comment.createdAt)) + '</time>',
+          '</article>'
+        )
+      })
+      html.push('</div>')
+    }
+    html.push(
+      '<div class="comment-form">',
+      '<textarea id="comment-input" class="comment-input" maxlength="280" rows="2" placeholder="匿名说点什么…"></textarea>',
+      '<button class="comment-send" id="comment-send" type="button"' + (state.commentBusy ? ' disabled' : '') + '>发送</button>',
+      '</div>',
+      '<p class="comment-hint">匿名 · 最多 280 字</p>'
+    )
+    box.innerHTML = html.join('')
+  }
+
+  async function loadCommentsFor(post) {
+    if (!post) return
+    var id = post.id
+    state.comments = []
+    state.commentsError = ''
+    state.commentsLoading = true
+    renderComments()
+    try {
+      var list = await C.loadComments(id)
+      if (!state.currentPost || state.currentPost.id !== id) return
+      state.comments = Array.isArray(list) ? list : []
+      state.commentCounts[id] = state.comments.length
+    } catch (error) {
+      if (state.currentPost && state.currentPost.id === id) {
+        state.commentsError = error && error.message ? error.message : '评论读取失败'
+      }
+    } finally {
+      if (state.currentPost && state.currentPost.id === id) {
+        state.commentsLoading = false
+        renderComments()
+        updateCommentCountsUI()
+        updateStatsUI()
+      }
+    }
+  }
+
+  async function sendComment() {
+    var post = state.currentPost
+    var input = document.getElementById('comment-input')
+    if (!post || !input || state.commentBusy) return
+    var text = String(input.value || '').trim()
+    if (!text) {
+      showToast('先说点什么')
+      return
+    }
+    state.commentBusy = true
+    var button = document.getElementById('comment-send')
+    if (button) button.disabled = true
+    try {
+      var comment = await C.addComment(post.id, text)
+      if (!comment) throw new Error('评论没有发出去')
+      if (!state.currentPost || state.currentPost.id !== post.id) return
+      state.comments.push(comment)
+      state.commentCounts[post.id] = state.comments.length
+      state.commentsError = ''
+      renderComments()
+      updateCommentCountsUI()
+      updateStatsUI()
+      showToast('评论已发出')
+    } catch (error) {
+      var message = error && error.message ? error.message : '评论发送失败'
+      state.commentsError = message
+      var errorNode = document.querySelector('.comment-error')
+      if (errorNode) errorNode.textContent = message
+      else showToast(message)
+    } finally {
+      state.commentBusy = false
+      var fresh = document.getElementById('comment-send')
+      if (fresh) fresh.disabled = false
+    }
+  }
+
   function openPost(post, index, replace) {
     if (!post) return
     state.currentPost = post
@@ -2042,6 +2499,7 @@ body::after {
       '<div class="detail-body"><div class="stage" id="detail-stage"></div></div>',
       '<div class="detail-caption" id="detail-caption"></div>',
       '<div class="detail-foot" id="detail-foot"></div>',
+      '<section class="comments" id="detail-comments"></section>',
     ].join('')
     document.body.appendChild(overlay)
     document.body.classList.add('has-overlay')
@@ -2062,6 +2520,7 @@ body::after {
     if (caption) caption.textContent = post.text || ''
     renderDetailFoot()
     renderDetailMedia()
+    loadCommentsFor(post)
 
     if (!replace) {
       try { history.pushState({ moment: true }, '', hashFor(post, state.currentIndex)) } catch (_) {}
@@ -2325,6 +2784,8 @@ body::after {
     setTimeout(function () { overlay.remove() }, 220)
     state.currentPost = null
     state.currentIndex = 0
+    state.comments = []
+    state.commentsError = ''
     var fromPop = options && options.fromPop
     if (!fromPop) {
       try {
@@ -2417,6 +2878,23 @@ body::after {
     var like = event.target.closest && event.target.closest('.like[data-like]')
     if (like) {
       toggleLike(like.getAttribute('data-like'))
+      return
+    }
+    var commentLink = event.target.closest && event.target.closest('.comment-link[data-comment-post]')
+    if (commentLink) {
+      var commentPost = findPost(commentLink.getAttribute('data-comment-post'))
+      if (commentPost) {
+        openPost(commentPost, 0, false)
+        setTimeout(function () {
+          var box = document.getElementById('detail-comments')
+          if (box) box.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 60)
+      }
+      return
+    }
+    var send = event.target.closest && event.target.closest('.comment-send')
+    if (send) {
+      sendComment()
       return
     }
     var music = event.target.closest && event.target.closest('.music[data-music]')
