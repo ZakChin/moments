@@ -1686,6 +1686,7 @@ body::after {
           siteId: CFG.siteId,
           postId: postId,
           mediaId: item.id,
+          visitorHash: await visitorHash(),
         }),
         credentials: 'omit',
         cache: 'no-store',
