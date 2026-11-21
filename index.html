@@ -1,0 +1,2233 @@
+<!-- moments-shell:v1 -->
+<!doctype html>
+<html lang="zh-CN" data-palette="aurora">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://fastly.jsdelivr.net; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>私人朋友圈</title>
+<style>:root {
+  color-scheme: dark;
+  --bg: #000;
+  --bg-elev: #08080b;
+  --card: #0c0c12;
+  --card-soft: rgba(12, 12, 18, .72);
+  --text: #f5f5f7;
+  --muted: #9a9aa6;
+  --faint: #686873;
+  --line: rgba(255, 255, 255, .08);
+  --line-strong: rgba(255, 255, 255, .14);
+
+  --g1: #22d3ee;
+  --g2: #6366f1;
+  --g3: #ec4899;
+  --g4: #fb923c;
+  --g5: #facc15;
+  --g6: #34d399;
+
+  --gradient: linear-gradient(110deg, var(--g1), var(--g2), var(--g3), var(--g4), var(--g5), var(--g6));
+  --gradient-soft: linear-gradient(110deg, rgba(34, 211, 238, .18), rgba(99, 102, 241, .16), rgba(236, 72, 153, .16), rgba(251, 146, 60, .14));
+  --radius: 18px;
+  --content: 680px;
+}
+
+[data-palette="neon"] {
+  --g1: #22d3ee;
+  --g2: #3b82f6;
+  --g3: #34d399;
+  --g4: #8b5cf6;
+  --g5: #2dd4bf;
+  --g6: #a78bfa;
+}
+
+[data-palette="sunset"] {
+  --g1: #fb7185;
+  --g2: #ec4899;
+  --g3: #fb923c;
+  --g4: #facc15;
+  --g5: #f97316;
+  --g6: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body.has-overlay {
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: rgba(236, 72, 153, .35);
+  color: #fff;
+}
+
+.aurora {
+  position: fixed;
+  inset: -18%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 42% at 18% 24%, rgba(34, 211, 238, .50), transparent 70%),
+    radial-gradient(34% 40% at 82% 18%, rgba(236, 72, 153, .44), transparent 72%),
+    radial-gradient(46% 48% at 62% 88%, rgba(251, 146, 60, .34), transparent 72%),
+    radial-gradient(34% 38% at 24% 78%, rgba(99, 102, 241, .36), transparent 72%);
+  filter: blur(72px) saturate(135%);
+  opacity: .52;
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.aurora::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  background:
+    radial-gradient(30% 34% at 72% 34%, rgba(250, 204, 21, .22), transparent 70%),
+    radial-gradient(28% 30% at 34% 62%, rgba(52, 211, 153, .22), transparent 70%);
+  filter: blur(60px);
+  animation: aurora-drift-2 34s ease-in-out infinite alternate;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 20%, transparent 35%, rgba(0, 0, 0, .42) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, .18), rgba(0, 0, 0, .52));
+}
+
+#app {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.boot {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: .04em;
+}
+
+.welcome {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 28px 22px;
+}
+
+.welcome-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 34px;
+  text-align: center;
+  transform: translateY(-2vh);
+}
+
+.hello {
+  margin: 0;
+  font-family: "Songti SC", "Noto Serif CJK SC", "STSong", "SimSun", serif;
+  font-size: clamp(46px, 9vw, 68px);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -.035em;
+  color: #fff;
+  text-shadow: 0 8px 42px rgba(0, 0, 0, .6);
+}
+
+.hello-sub {
+  display: none;
+}
+
+.cta {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 292px;
+  max-width: calc(100vw - 44px);
+  height: 58px;
+  padding: 0 32px;
+  border: 0;
+  border-radius: 999px;
+  background-image: var(--gradient);
+  background-size: 400% 100%;
+  background-position: 0% 50%;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow:
+    0 0 32px rgba(236, 72, 153, .22),
+    0 0 70px rgba(34, 211, 238, .14),
+    0 12px 34px rgba(0, 0, 0, .5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .24);
+  animation: gradient-pan 9s linear infinite, cta-breathe 7s ease-in-out infinite;
+  transition: transform .18s ease, box-shadow .25s ease, filter .25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cta::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: var(--gradient);
+  background-size: 400% 100%;
+  filter: blur(24px);
+  opacity: .52;
+  animation: gradient-pan 9s linear infinite;
+}
+
+.cta::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .16), transparent 60%);
+  pointer-events: none;
+  opacity: .7;
+}
+
+.cta:hover {
+  transform: translateY(-2px) scale(1.012);
+  filter: saturate(1.08);
+  box-shadow:
+    0 0 42px rgba(236, 72, 153, .30),
+    0 0 90px rgba(34, 211, 238, .20),
+    0 16px 38px rgba(0, 0, 0, .55);
+}
+
+.cta:active {
+  transform: translateY(0) scale(.994);
+}
+
+.cta[disabled] {
+  cursor: default;
+  opacity: .78;
+}
+
+.cta .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px #fff;
+  opacity: .9;
+  animation: dot-pulse 2.4s ease-in-out infinite;
+}
+
+.cta.is-loading .dot {
+  animation-duration: .9s;
+}
+
+.notice {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(8, 8, 11, .72);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.locked {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+}
+
+.locked-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.lock-glyph {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    var(--gradient) border-box;
+  box-shadow: 0 0 40px rgba(236, 72, 153, .14);
+}
+
+.lock-glyph svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text);
+  fill: none;
+  stroke-width: 1.6;
+}
+
+.locked h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+
+.locked p {
+  margin: 0;
+  max-width: 320px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.site {
+  width: 100%;
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 34px 0 22px;
+}
+
+.avatar-ring {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  border-radius: 50%;
+  padding: 2px;
+  background: var(--gradient);
+  background-size: 300% 300%;
+  animation: gradient-pan 12s linear infinite;
+  box-shadow: 0 0 28px rgba(236, 72, 153, .18);
+}
+
+.avatar-ring::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: var(--gradient);
+  filter: blur(12px);
+  opacity: .28;
+  z-index: -1;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #0a0a0f center/cover no-repeat;
+  border: 2px solid #000;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 18px;
+  overflow: hidden;
+}
+
+.who {
+  min-width: 0;
+}
+
+.who h1 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.who p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.count {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--faint);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+.scroll-line {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  height: 2px;
+  margin: 0 -20px 8px;
+  background: rgba(255, 255, 255, .04);
+}
+
+.scroll-line i {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: var(--gradient);
+  background-size: 300% 100%;
+  animation: gradient-pan 8s linear infinite;
+  box-shadow: 0 0 12px rgba(236, 72, 153, .5);
+  transition: width .08s linear;
+}
+
+.feed {
+  display: block;
+}
+
+.day {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 20px;
+  padding: 28px 0 8px;
+}
+
+.day-posts {
+  min-width: 0;
+}
+
+.date {
+  position: sticky;
+  top: 22px;
+  align-self: start;
+  text-align: left;
+  user-select: none;
+}
+
+.date b {
+  display: block;
+  font-family: "Songti SC", "Noto Serif CJK SC", "STSong", serif;
+  font-size: 44px;
+  font-weight: 400;
+  line-height: .88;
+  letter-spacing: -.055em;
+  color: var(--text);
+}
+
+.date span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+
+.date i {
+  display: block;
+  width: 28px;
+  height: 2px;
+  margin-top: 12px;
+  border-radius: 99px;
+  background: var(--gradient);
+  background-size: 300% 100%;
+  animation: gradient-pan 8s linear infinite;
+  opacity: .9;
+}
+
+.day.is-latest .date b {
+  background: var(--gradient);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-pan 10s linear infinite;
+}
+
+.post {
+  min-width: 0;
+  padding: 0 0 24px;
+  margin: 0 0 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.post:last-child {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+.post-text {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: 15.5px;
+  line-height: 1.82;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 12px 0 14px;
+}
+
+.grid.one {
+  grid-template-columns: minmax(0, 340px);
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #111117;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.thumb-bg {
+  position: absolute;
+  inset: 0;
+  background-color: #111117;
+  background-position: center;
+  background-size: cover;
+  filter: saturate(.94);
+  transition: transform .35s ease, filter .35s ease;
+}
+
+.thumb:hover .thumb-bg {
+  transform: scale(1.025);
+  filter: saturate(1.02);
+}
+
+.thumb.flash .thumb-bg {
+  filter: blur(18px) brightness(.52) saturate(.8);
+  transform: scale(1.12);
+}
+
+.thumb.flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0,0,0,.05), rgba(0,0,0,.38));
+}
+
+.flash-badge {
+  position: absolute;
+  left: 7px;
+  bottom: 7px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(0, 0, 0, .62);
+  color: rgba(255, 255, 255, .88);
+  font-size: 10px;
+  letter-spacing: .04em;
+  backdrop-filter: blur(6px);
+}
+
+.flash-badge svg {
+  width: 10px;
+  height: 10px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.music {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 100%;
+  margin-top: 10px;
+  padding: 9px 14px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background:
+    linear-gradient(rgba(255, 255, 255, .035), rgba(255, 255, 255, .035)) padding-box,
+    linear-gradient(110deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, .06)) border-box;
+  color: var(--text);
+  font-size: 12.5px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.music:hover {
+  background:
+    linear-gradient(rgba(255, 255, 255, .05), rgba(255, 255, 255, .05)) padding-box,
+    var(--gradient) border-box;
+}
+
+.music.is-playing {
+  background:
+    linear-gradient(rgba(12, 12, 18, .86), rgba(12, 12, 18, .86)) padding-box,
+    var(--gradient) border-box;
+  box-shadow: 0 0 26px rgba(236, 72, 153, .16);
+  animation: glow-breathe 6s ease-in-out infinite;
+}
+
+.music .note {
+  color: var(--g1);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.music .track {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+}
+
+.music .eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  margin-left: 2px;
+}
+
+.music .eq i {
+  width: 2px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gradient);
+  background-size: 100% 300%;
+  animation: eq 1s ease-in-out infinite;
+}
+
+.music .eq i:nth-child(2) { animation-delay: .15s; }
+.music .eq i:nth-child(3) { animation-delay: .3s; }
+
+.music:not(.is-playing) .eq {
+  display: none;
+}
+
+.empty {
+  padding: 70px 0 50px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.empty .empty-dot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--gradient);
+  background-size: 300% 100%;
+  animation: gradient-pan 8s linear infinite;
+  box-shadow: 0 0 18px rgba(236, 72, 153, .5);
+}
+
+.footer {
+  padding: 26px 0 10px;
+  text-align: center;
+  color: var(--faint);
+  font-size: 11px;
+  letter-spacing: .06em;
+}
+
+/* ---------- detail ---------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .22s ease, visibility .22s ease;
+}
+
+.overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.detail-progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 60;
+  height: 2px;
+  background: rgba(255, 255, 255, .05);
+}
+
+.detail-progress i {
+  display: block;
+  width: var(--progress, 0%);
+  height: 100%;
+  background: var(--gradient);
+  background-size: 300% 100%;
+  animation: gradient-pan 8s linear infinite;
+  box-shadow: 0 0 12px rgba(236, 72, 153, .5);
+  transition: width .15s linear;
+}
+
+.detail-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 16px 8px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .03);
+  color: var(--text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.icon-btn:hover {
+  border-color: rgba(255, 255, 255, .28);
+  background: rgba(255, 255, 255, .06);
+}
+
+.icon-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+}
+
+.detail-count {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .04em;
+}
+
+.detail-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 14px 10px;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.full {
+  max-width: 100%;
+  max-height: calc(100svh - 196px);
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  background: #000;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .65);
+  touch-action: pan-y;
+}
+
+.detail-caption {
+  width: 100%;
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 14px 4px 4px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.detail-caption:empty {
+  display: none;
+}
+
+.detail-foot {
+  width: 100%;
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 6px 14px 24px;
+}
+
+.detail-foot .music {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.detail-loading {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .05em;
+}
+
+.loader {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .12);
+  border-top-color: var(--g1);
+  animation: spin 1s linear infinite;
+}
+
+.flash-stage {
+  position: relative;
+  width: min(100%, 520px);
+  aspect-ratio: 3 / 4;
+  max-height: calc(100svh - 190px);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #08080b center/cover no-repeat;
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+}
+
+.flash-stage::before {
+  content: "";
+  position: absolute;
+  inset: -30px;
+  background: inherit;
+  filter: blur(28px) brightness(.45) saturate(.8);
+  transform: scale(1.1);
+}
+
+.flash-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(0,0,0,.08), rgba(0,0,0,.7));
+}
+
+.flash-panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.flash-panel h2 {
+  margin: 0;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+
+.flash-panel p {
+  margin: 0;
+  color: rgba(255, 255, 255, .66);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.flash-panel .icon-btn {
+  width: 54px;
+  height: 54px;
+  border-color: rgba(255, 255, 255, .2);
+}
+
+.flash-panel .icon-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.flash-view {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.flash-view canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.flash-ring {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 4;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: conic-gradient(var(--g3) calc(var(--p, 100) * 1%), rgba(255,255,255,.14) 0);
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+  mask: radial-gradient(circle, transparent 58%, #000 60%);
+  filter: drop-shadow(0 0 10px rgba(236, 72, 153, .5));
+}
+
+.flash-count {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 5;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.burn {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.burn .burn-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--faint);
+}
+
+.burn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  z-index: 80;
+  transform: translate(-50%, 10px);
+  max-width: calc(100vw - 40px);
+  padding: 10px 15px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(12, 12, 18, .92);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  backdrop-filter: blur(12px);
+}
+
+.toast.is-show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------- motion ---------- */
+
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes aurora-drift {
+  0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+  50% { transform: translate3d(2%, 2%, 0) scale(1.06); }
+  100% { transform: translate3d(-1%, 3%, 0) scale(1.02); }
+}
+
+@keyframes aurora-drift-2 {
+  0% { transform: translate3d(1%, 0, 0) scale(1); }
+  100% { transform: translate3d(-3%, -2%, 0) scale(1.08); }
+}
+
+@keyframes cta-breathe {
+  0%, 100% { box-shadow: 0 0 32px rgba(236, 72, 153, .22), 0 0 70px rgba(34, 211, 238, .14), 0 12px 34px rgba(0, 0, 0, .5); }
+  50% { box-shadow: 0 0 44px rgba(236, 72, 153, .32), 0 0 92px rgba(34, 211, 238, .22), 0 14px 38px rgba(0, 0, 0, .55); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { box-shadow: 0 0 22px rgba(236, 72, 153, .12); }
+  50% { box-shadow: 0 0 34px rgba(236, 72, 153, .24); }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: .5; }
+  50% { opacity: 1; }
+}
+
+@keyframes eq {
+  0%, 100% { height: 4px; }
+  50% { height: 12px; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .aurora {
+    filter: blur(46px) saturate(130%);
+    opacity: .42;
+  }
+
+  .site {
+    padding: 0 16px 64px;
+  }
+
+  .top {
+    padding: 26px 0 18px;
+  }
+
+  .avatar-ring {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+  }
+
+  .who h1 {
+    font-size: 16px;
+  }
+
+  .who p {
+    font-size: 11.5px;
+  }
+
+  .count {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .day {
+    grid-template-columns: 55px minmax(0, 1fr);
+    gap: 13px;
+    padding-top: 24px;
+  }
+
+  .date b {
+    font-size: 37px;
+  }
+
+  .date span {
+    font-size: 10.5px;
+    margin-top: 6px;
+  }
+
+  .date i {
+    width: 21px;
+    margin-top: 9px;
+  }
+
+  .post-text {
+    font-size: 15px;
+    line-height: 1.78;
+  }
+
+  .grid {
+    gap: 5px;
+  }
+
+  .grid.one {
+    grid-template-columns: minmax(0, 100%);
+  }
+
+  .cta {
+    height: 54px;
+    min-width: 0;
+    width: calc(100vw - 44px);
+    padding: 0 18px;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+
+  .hello {
+    font-size: clamp(42px, 13vw, 56px);
+  }
+
+  .music .track {
+    max-width: 205px;
+  }
+
+  .overlay .detail-caption {
+    font-size: 13.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cta,
+  .cta::before,
+  .avatar-ring,
+  .date i,
+  .scroll-line i,
+  .empty .empty-dot {
+    animation: none !important;
+    background-position: 50% 50%;
+  }
+
+  .aurora,
+  .aurora::after {
+    animation: none !important;
+  }
+}
+
+@media print {
+  .aurora,
+  body::after,
+  #app,
+  .toast {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}
+</style>
+</head>
+<body>
+<div class="aurora" aria-hidden="true"></div>
+<div id="app"><div class="boot">正在打开…</div></div>
+<noscript><div class="boot">请开启 JavaScript 后查看</div></noscript>
+<script>window.__MOMENTS__ = {"login":"zakchin","repo":"moments","cdnBase":"https://cdn.jsdelivr.net/gh/zakchin/moments@main/","fastlyBase":"https://fastly.jsdelivr.net/gh/zakchin/moments@main/","v":1};</script>
+<script>(function (global) {
+  'use strict'
+
+  var CFG = global.__MOMENTS__ || {}
+  var KDF_ITERATIONS = 310000
+  var IV_BYTES = 12
+  var enc = new TextEncoder()
+  var dec = new TextDecoder()
+
+  function bytesToB64(bytes) {
+    var out = ''
+    var chunk = 0x8000
+    for (var i = 0; i < bytes.length; i += chunk) {
+      out += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk))
+    }
+    return btoa(out)
+  }
+
+  function b64ToBytes(value) {
+    var raw = String(value || '').replace(/-/g, '+').replace(/_/g, '/')
+    while (raw.length % 4) raw += '='
+    var bin = atob(raw)
+    var bytes = new Uint8Array(bin.length)
+    for (var i = 0; i < bin.length; i += 1) bytes[i] = bin.charCodeAt(i)
+    return bytes
+  }
+
+  function b64urlToBytes(value) {
+    return b64ToBytes(String(value || ''))
+  }
+
+  function normalizeSecret(raw) {
+    var value = String(raw || '').trim()
+    return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : null
+  }
+
+  function parseHash(hash) {
+    var raw = String(hash || global.location.hash || '').replace(/^#/, '')
+    var params = new URLSearchParams(raw)
+    var secret = normalizeSecret(params.get('p'))
+    return {
+      secret: secret,
+      postId: params.get('post') || null,
+      mediaIndex: params.get('i') || null,
+    }
+  }
+
+  async function deriveKey(secret, salt) {
+    var base = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(String(secret)),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    )
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: salt, iterations: KDF_ITERATIONS, hash: 'SHA-256' },
+      base,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt']
+    )
+  }
+
+  async function decryptBytes(blob, key) {
+    var data = blob instanceof Uint8Array ? blob : new Uint8Array(blob)
+    if (data.length < IV_BYTES + 16) throw new Error('数据不完整')
+    var iv = data.subarray(0, IV_BYTES)
+    var payload = data.subarray(IV_BYTES)
+    var plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv, tagLength: 128 }, key, payload)
+    return new Uint8Array(plain)
+  }
+
+  async function openManifest(outer, secret) {
+    if (!outer || outer.v !== 1 || outer.kdf !== 'PBKDF2-SHA256') throw new Error('manifest 版本不支持')
+    if (Number(outer.iterations) !== KDF_ITERATIONS) throw new Error('manifest 参数不支持')
+    var salt = b64ToBytes(outer.salt)
+    if (salt.length !== 16) throw new Error('manifest salt 无效')
+    var key = await deriveKey(secret, salt)
+    var plain = await decryptBytes(b64ToBytes(outer.data), key)
+    var payload = JSON.parse(dec.decode(plain))
+    if (!payload || payload.v !== 1 || !Array.isArray(payload.posts)) throw new Error('manifest 内容无效')
+    return { payload: payload, key: key, salt: salt }
+  }
+
+  function withTimeout(ms) {
+    var controller = new AbortController()
+    var timer = setTimeout(function () { controller.abort() }, ms)
+    return {
+      signal: controller.signal,
+      done: function () { clearTimeout(timer) },
+    }
+  }
+
+  async function fetchBytes(url, options) {
+    var opts = options || {}
+    var timeout = withTimeout(opts.timeout || 9000)
+    try {
+      var res = await fetch(url, {
+        method: 'GET',
+        cache: opts.cache || 'default',
+        credentials: 'omit',
+        signal: timeout.signal,
+      })
+      if (!res.ok) throw new Error('HTTP ' + res.status)
+      return await res.arrayBuffer()
+    } finally {
+      timeout.done()
+    }
+  }
+
+  function absolutePath(path) {
+    return String(path || '').replace(/^\.?\//, '')
+  }
+
+  function manifestSources() {
+    var out = []
+    out.push({ url: './vault/manifest.json?ts=' + Date.now(), cache: 'no-store' })
+    if (CFG.cdnBase) out.push({ url: CFG.cdnBase + 'vault/manifest.json', cache: 'default' })
+    if (CFG.fastlyBase) out.push({ url: CFG.fastlyBase + 'vault/manifest.json', cache: 'default' })
+    return out
+  }
+
+  async function loadManifest(secret) {
+    var sources = manifestSources()
+    var last = null
+    for (var i = 0; i < sources.length; i += 1) {
+      try {
+        var bytes = await fetchBytes(sources[i].url, { timeout: 9000, cache: sources[i].cache })
+        var outer = JSON.parse(dec.decode(new Uint8Array(bytes)))
+        return await openManifest(outer, secret)
+      } catch (error) {
+        last = error
+      }
+    }
+    var err = new Error('manifest 读取失败')
+    err.cause = last
+    throw err
+  }
+
+  function mediaSources(item) {
+    var path = absolutePath(item && item.path)
+    var out = []
+    var tooBig = Number(item && item.bytes) > 20 * 1024 * 1024
+    if (!tooBig && CFG.cdnBase) out.push(CFG.cdnBase + path)
+    if (!tooBig && CFG.fastlyBase) out.push(CFG.fastlyBase + path)
+    out.push('./' + path)
+    return out
+  }
+
+  async function loadMedia(secret, key, item) {
+    var sources = mediaSources(item)
+    var last = null
+    for (var i = 0; i < sources.length; i += 1) {
+      try {
+        var bytes = await fetchBytes(sources[i], { timeout: 12000, cache: 'force-cache' })
+        var plain = await decryptBytes(new Uint8Array(bytes), key)
+        return new Blob([plain], { type: item.mime || 'application/octet-stream' })
+      } catch (error) {
+        last = error
+      }
+    }
+    var err = new Error('媒体读取失败')
+    err.cause = last
+    throw err
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+  }
+
+  function greeting(date) {
+    var hour = (date || new Date()).getHours()
+    if (hour >= 5 && hour < 11) return '早上好'
+    if (hour >= 11 && hour < 13) return '中午好'
+    if (hour >= 13 && hour < 18) return '下午好'
+    if (hour >= 18 && hour < 23) return '晚上好'
+    return '夜深了'
+  }
+
+  function pad(n) {
+    return String(n).padStart(2, '0')
+  }
+
+  function dayKey(date) {
+    var d = date instanceof Date ? date : new Date(date)
+    if (Number.isNaN(d.getTime())) d = new Date()
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+  }
+
+  function dayLabel(date) {
+    var d = date instanceof Date ? date : new Date(date)
+    if (Number.isNaN(d.getTime())) d = new Date()
+    var today = new Date()
+    var key = dayKey(d)
+    if (key === dayKey(today)) return '今天'
+    var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1)
+    if (key === dayKey(yesterday)) return '昨天'
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日'
+  }
+
+  function dateParts(date) {
+    var d = date instanceof Date ? date : new Date(date)
+    if (Number.isNaN(d.getTime())) d = new Date()
+    return {
+      day: String(d.getDate()).padStart(2, '0'),
+      month: (d.getMonth() + 1) + '月',
+      key: dayKey(d),
+      label: dayLabel(d),
+      time: pad(d.getHours()) + ':' + pad(d.getMinutes()),
+    }
+  }
+
+  function groupPosts(posts) {
+    var groups = []
+    var byKey = new Map()
+    var list = Array.isArray(posts) ? posts.slice() : []
+    list.sort(function (a, b) {
+      return (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0)
+    })
+    list.forEach(function (post) {
+      var parts = dateParts(post.createdAt)
+      var group = byKey.get(parts.key)
+      if (!group) {
+        group = { key: parts.key, date: new Date(post.createdAt || Date.now()), parts: parts, posts: [] }
+        byKey.set(parts.key, group)
+        groups.push(group)
+      }
+      group.posts.push(post)
+    })
+    return groups
+  }
+
+  function flashKey(secret, id) {
+    return 'moments:flash:' + String(secret).slice(0, 16) + ':' + String(id)
+  }
+
+  function flashBurned(secret, id) {
+    try { return localStorage.getItem(flashKey(secret, id)) === '1' } catch (_) { return false }
+  }
+
+  function burnFlash(secret, id) {
+    try { localStorage.setItem(flashKey(secret, id), '1') } catch (_) {}
+  }
+
+  /**
+   * Single integration point for the future server-issued one-time ticket.
+   * The static v1 has no authority, so it falls back to the local burn state.
+   */
+  async function authorizeFlash() {
+    return true
+  }
+
+  function formatBytes(bytes) {
+    var n = Number(bytes) || 0
+    if (n < 1024) return n + ' B'
+    if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB'
+    return (n / 1024 / 1024).toFixed(1) + ' MB'
+  }
+
+  function reducedMotion() {
+    return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  }
+
+  global.MomentsCore = {
+    KDF_ITERATIONS: KDF_ITERATIONS,
+    bytesToB64: bytesToB64,
+    b64ToBytes: b64ToBytes,
+    b64urlToBytes: b64urlToBytes,
+    normalizeSecret: normalizeSecret,
+    parseHash: parseHash,
+    deriveKey: deriveKey,
+    decryptBytes: decryptBytes,
+    openManifest: openManifest,
+    loadManifest: loadManifest,
+    loadMedia: loadMedia,
+    mediaSources: mediaSources,
+    escapeHtml: escapeHtml,
+    greeting: greeting,
+    dayKey: dayKey,
+    dayLabel: dayLabel,
+    dateParts: dateParts,
+    groupPosts: groupPosts,
+    flashBurned: flashBurned,
+    burnFlash: burnFlash,
+    authorizeFlash: authorizeFlash,
+    formatBytes: formatBytes,
+    reducedMotion: reducedMotion,
+  }
+})(window)
+</script>
+<script>(function () {
+  'use strict'
+
+  var C = window.MomentsCore
+  var root = document.getElementById('app')
+  var state = {
+    secret: null,
+    manifestPromise: null,
+    manifestError: null,
+    payload: null,
+    key: null,
+    profile: null,
+    posts: [],
+    view: 'boot',
+    enterBusy: false,
+    currentPost: null,
+    currentIndex: 0,
+    flashTimer: null,
+    flashDeadline: 0,
+    flashViewing: false,
+  }
+
+  var audio = {
+    ctx: null,
+    source: null,
+    gain: null,
+    postId: null,
+    mediaId: null,
+    playing: false,
+  }
+
+  var blobCache = new Map()
+  var bufferCache = new Map()
+  var toastTimer = null
+  var scrollFrame = 0
+  var greetingTimer = null
+
+  var LOCK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2.5"></rect><path d="M8 10V7.5a4 4 0 0 1 8 0V10"></path></svg>'
+  var CLOSE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>'
+  var LEFT_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>'
+  var RIGHT_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>'
+  var FLAME_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c3 3.4 5.5 6.1 5.5 9.2A5.5 5.5 0 0 1 12 17.8 5.5 5.5 0 0 1 6.5 12.2C6.5 9.1 9 6.4 12 3z"></path><path d="M12 12.2c.9 1 1.5 1.9 1.5 2.9a1.5 1.5 0 0 1-3 0c0-1 .6-1.9 1.5-2.9z"></path></svg>'
+
+  function escape(value) {
+    return C.escapeHtml(value)
+  }
+
+  function firstChar(value) {
+    var text = String(value || '').trim()
+    return text ? Array.from(text)[0] : '·'
+  }
+
+  function setPalette(profile) {
+    var palette = profile && profile.palette ? profile.palette : 'aurora'
+    document.documentElement.dataset.palette = palette
+  }
+
+  function showToast(message) {
+    var old = document.querySelector('.toast')
+    if (old) old.remove()
+    var node = document.createElement('div')
+    node.className = 'toast is-show'
+    node.textContent = message
+    document.body.appendChild(node)
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(function () {
+      node.classList.remove('is-show')
+      setTimeout(function () { node.remove() }, 260)
+    }, 3200)
+  }
+
+  function renderBoot() {
+    root.innerHTML = '<div class="boot">正在打开…</div>'
+  }
+
+  function renderLocked() {
+    state.view = 'locked'
+    root.innerHTML = [
+      '<main class="locked">',
+      '<div class="locked-inner">',
+      '<div class="lock-glyph">' + LOCK_SVG + '</div>',
+      '<h1>这是加密的私人朋友圈</h1>',
+      '<p>请扫描主人分享的二维码</p>',
+      '</div>',
+      '</main>',
+    ].join('')
+  }
+
+  function renderWelcome() {
+    state.view = 'welcome'
+    root.innerHTML = [
+      '<main class="welcome">',
+      '<div class="welcome-inner">',
+      '<h1 class="hello" id="hello">' + escape(C.greeting()) + '</h1>',
+      '<button class="cta" id="enter" type="button">',
+      '<span class="dot"></span>',
+      '<span>瞟一眼这货最近在干什么</span>',
+      '</button>',
+      '</div>',
+      '</main>',
+    ].join('')
+
+    var hello = document.getElementById('hello')
+    var button = document.getElementById('enter')
+    clearInterval(greetingTimer)
+    greetingTimer = setInterval(function () {
+      if (state.view !== 'welcome' || !hello) return
+      var next = C.greeting()
+      if (hello.textContent !== next) hello.textContent = next
+    }, 60000)
+
+    button.addEventListener('click', onEnter)
+  }
+
+  function ensureManifest() {
+    if (!state.manifestPromise) {
+      state.manifestPromise = C.loadManifest(state.secret).catch(function (error) {
+        state.manifestError = error
+        throw error
+      })
+    }
+    return state.manifestPromise
+  }
+
+  async function unlockAudio() {
+    var Ctx = window.AudioContext || window.webkitAudioContext
+    if (!Ctx) return
+    if (!audio.ctx) audio.ctx = new Ctx()
+    if (audio.ctx.state === 'suspended') {
+      try { await audio.ctx.resume() } catch (_) {}
+    }
+  }
+
+  async function onEnter() {
+    if (state.enterBusy) return
+    var button = document.getElementById('enter')
+    state.enterBusy = true
+    if (button) {
+      button.classList.add('is-loading')
+      button.disabled = true
+    }
+    unlockAudio()
+    try {
+      var loaded = await ensureManifest()
+      state.payload = loaded.payload
+      state.key = loaded.key
+      state.profile = loaded.payload.profile || {}
+      state.posts = Array.isArray(loaded.payload.posts) ? loaded.payload.posts : []
+      setPalette(state.profile)
+      renderFeed()
+      var entry = C.parseHash()
+      if (entry.postId) {
+        var index = entry.mediaIndex ? Number(entry.mediaIndex) : 0
+        openPostById(entry.postId, Number.isFinite(index) ? index : 0, true)
+      }
+    } catch (error) {
+      state.enterBusy = false
+      if (button) {
+        button.classList.remove('is-loading')
+        button.disabled = false
+      }
+      var code = error && error.cause && error.cause.message
+      if (code && code.indexOf('404') !== -1) {
+        showToast('这里还没有朋友圈，等主人发第一条吧')
+      } else if (error && error.name === 'OperationError') {
+        showToast('密钥不对，可能需要重新扫码')
+      } else {
+        showToast('内容读取失败，检查网络后再试')
+      }
+    }
+  }
+
+  function avatarHtml(profile) {
+    if (profile && profile.avatar) {
+      return '<span class="avatar" style="background-image:url(\'' + escape(profile.avatar) + '\')"></span>'
+    }
+    return '<span class="avatar">' + escape(firstChar(profile && profile.title)) + '</span>'
+  }
+
+  function mediaGrid(post) {
+    var media = Array.isArray(post.media) ? post.media : []
+    if (!media.length) return ''
+    var cls = media.length === 1 ? ' one' : media.length === 2 ? ' two' : ''
+    var html = ['<div class="grid' + cls + '">']
+    media.forEach(function (item, index) {
+      var bg = item.thumb ? "background-image:url('" + escape(item.thumb) + "')" : ''
+      var flash = item.flash ? ' flash' : ''
+      html.push('<button class="thumb' + flash + '" type="button" data-post="' + escape(post.id) + '" data-index="' + index + '" aria-label="' + (item.flash ? '查看闪照' : '查看图片') + '">')
+      html.push('<span class="thumb-bg" style="' + bg + '"></span>')
+      if (item.flash) {
+        html.push('<span class="flash-badge">' + FLAME_SVG + '闪照</span>')
+      }
+      html.push('</button>')
+    })
+    html.push('</div>')
+    return html.join('')
+  }
+
+  function musicHtml(post) {
+    if (!post.music) return ''
+    var playing = audio.playing && audio.postId === post.id ? ' is-playing' : ''
+    return [
+      '<button class="music' + playing + '" type="button" data-music="' + escape(post.id) + '" aria-label="播放配乐">',
+      '<span class="note">♫</span>',
+      '<span class="track">' + escape(post.music.title || '配乐') + '</span>',
+      '<span class="eq"><i></i><i></i><i></i></span>',
+      '</button>',
+    ].join('')
+  }
+
+  function renderFeed() {
+    state.view = 'feed'
+    clearInterval(greetingTimer)
+    var profile = state.profile || {}
+    var groups = C.groupPosts(state.posts)
+    var html = [
+      '<div class="site">',
+      '<header class="top">',
+      '<div class="avatar-ring">' + avatarHtml(profile) + '</div>',
+      '<div class="who">',
+      '<h1>' + escape(profile.title || '我的朋友圈') + '</h1>',
+      '<p>' + escape(profile.bio || '') + '</p>',
+      '</div>',
+      '<span class="count">' + state.posts.length + '</span>',
+      '</header>',
+      '<div class="scroll-line"><i id="scroll-fill"></i></div>',
+      '<main class="feed">',
+    ]
+
+    if (!state.posts.length) {
+      html.push('<div class="empty"><span class="empty-dot"></span>还没有内容<br>等主人发第一条朋友圈</div>')
+    } else {
+      groups.forEach(function (group, groupIndex) {
+        html.push('<section class="day' + (groupIndex === 0 ? ' is-latest' : '') + '">')
+        html.push('<div class="date"><b>' + escape(group.parts.day) + '</b><span>' + escape(group.parts.month) + '</span><i></i></div>')
+        html.push('<div class="day-posts">')
+        group.posts.forEach(function (post) {
+          html.push('<article class="post" data-id="' + escape(post.id) + '">')
+          if (post.text) html.push('<p class="post-text">' + escape(post.text) + '</p>')
+          html.push(mediaGrid(post))
+          html.push(musicHtml(post))
+          html.push('</article>')
+        })
+        html.push('</div></section>')
+      })
+    }
+
+    html.push('</main></div>')
+    root.innerHTML = html.join('')
+
+    var fill = document.getElementById('scroll-fill')
+    function updateScroll() {
+      scrollFrame = 0
+      if (!fill) return
+      var max = document.documentElement.scrollHeight - window.innerHeight
+      var ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
+      fill.style.width = (ratio * 100).toFixed(2) + '%'
+    }
+    window.removeEventListener('scroll', onScroll)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    updateScroll()
+  }
+
+  function onScroll() {
+    if (scrollFrame) return
+    scrollFrame = requestAnimationFrame(function () {
+      scrollFrame = 0
+      var fill = document.getElementById('scroll-fill')
+      if (!fill) return
+      var max = document.documentElement.scrollHeight - window.innerHeight
+      var ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
+      fill.style.width = (ratio * 100).toFixed(2) + '%'
+    })
+  }
+
+  function findPost(id) {
+    return state.posts.find(function (item) { return item.id === id }) || null
+  }
+
+  function openPostById(id, index, replace) {
+    var post = findPost(id)
+    if (!post) return
+    openPost(post, index || 0, Boolean(replace))
+  }
+
+  function hashFor(post, index) {
+    return '#p=' + state.secret + '&post=' + encodeURIComponent(post.id) + '&i=' + index
+  }
+
+  function openPost(post, index, replace) {
+    if (!post) return
+    state.currentPost = post
+    state.currentIndex = Math.max(0, Math.min(index || 0, (post.media || []).length - 1))
+    state.flashViewing = false
+    clearFlashTimer()
+
+    var existing = document.getElementById('overlay')
+    if (existing) existing.remove()
+
+    var overlay = document.createElement('div')
+    overlay.className = 'overlay is-open'
+    overlay.id = 'overlay'
+    overlay.innerHTML = [
+      '<div class="detail-progress"><i id="detail-progress"></i></div>',
+      '<div class="detail-top">',
+      '<button class="icon-btn" id="detail-close" type="button" aria-label="关闭">' + CLOSE_SVG + '</button>',
+      '<span class="detail-count" id="detail-count"></span>',
+      '<button class="icon-btn" id="detail-next" type="button" aria-label="下一张">' + RIGHT_SVG + '</button>',
+      '</div>',
+      '<div class="detail-body"><div class="stage" id="detail-stage"></div></div>',
+      '<div class="detail-caption" id="detail-caption"></div>',
+      '<div class="detail-foot" id="detail-foot"></div>',
+    ].join('')
+    document.body.appendChild(overlay)
+    document.body.classList.add('has-overlay')
+
+    overlay.addEventListener('click', function (event) {
+      if (event.target === overlay) closeDetail()
+    })
+    document.getElementById('detail-close').addEventListener('click', function () { closeDetail() })
+    document.getElementById('detail-next').addEventListener('click', function () { stepMedia(1) })
+
+    var count = (post.media || []).length
+    var counter = document.getElementById('detail-count')
+    if (counter) counter.textContent = count ? (state.currentIndex + 1) + ' / ' + count : ''
+    var next = document.getElementById('detail-next')
+    if (next) next.style.display = count > 1 ? '' : 'none'
+
+    var caption = document.getElementById('detail-caption')
+    if (caption) caption.textContent = post.text || ''
+    renderDetailFoot()
+    renderDetailMedia()
+
+    if (!replace) {
+      try { history.pushState({ moment: true }, '', hashFor(post, state.currentIndex)) } catch (_) {}
+    } else {
+      try { history.replaceState({ moment: true }, '', hashFor(post, state.currentIndex)) } catch (_) {}
+    }
+
+    if (post.music) {
+      playMusic(post).catch(function () {
+        showToast('配乐需要点一下播放')
+      })
+    }
+  }
+
+  function renderDetailFoot() {
+    var foot = document.getElementById('detail-foot')
+    if (!foot) return
+    var post = state.currentPost
+    if (!post || !post.music) {
+      foot.innerHTML = ''
+      return
+    }
+    foot.innerHTML = musicHtml(post)
+  }
+
+  function updateDetailCounter() {
+    var post = state.currentPost
+    if (!post) return
+    var count = (post.media || []).length
+    var counter = document.getElementById('detail-count')
+    if (counter) counter.textContent = count ? (state.currentIndex + 1) + ' / ' + count : ''
+    var next = document.getElementById('detail-next')
+    if (next) next.style.display = count > 1 ? '' : 'none'
+    var index = post.media && post.media[state.currentIndex]
+    var caption = document.getElementById('detail-caption')
+    if (caption) caption.textContent = post.text || ''
+    if (index) {
+      try { history.replaceState({ moment: true }, '', hashFor(post, state.currentIndex)) } catch (_) {}
+    }
+  }
+
+  function stepMedia(delta) {
+    var post = state.currentPost
+    if (!post || !post.media || post.media.length < 2) return
+    state.currentIndex = (state.currentIndex + delta + post.media.length) % post.media.length
+    state.flashViewing = false
+    clearFlashTimer()
+    updateDetailCounter()
+    renderDetailMedia()
+  }
+
+  function clearFlashTimer() {
+    if (state.flashTimer) {
+      clearInterval(state.flashTimer)
+      state.flashTimer = null
+    }
+  }
+
+  function renderDetailMedia() {
+    var stage = document.getElementById('detail-stage')
+    var post = state.currentPost
+    if (!stage || !post) return
+    var item = post.media && post.media[state.currentIndex]
+    if (!item) {
+      stage.innerHTML = '<div class="detail-loading"><div class="loader"></div><span>这条没有图片</span></div>'
+      return
+    }
+
+    if (item.flash) {
+      if (C.flashBurned(state.secret, item.id)) {
+        renderBurn(stage, '这张闪照已经焚毁')
+        return
+      }
+      var bg = item.thumb ? "background-image:url('" + escape(item.thumb) + "')" : ''
+      stage.innerHTML = [
+        '<div class="flash-stage" style="' + bg + '">',
+        '<div class="flash-panel">',
+        '<div class="icon-btn" aria-hidden="true">' + FLAME_SVG + '</div>',
+        '<h2>这是一张闪照</h2>',
+        '<p>查看后 5 秒焚毁<br>不能保存，也不能重看</p>',
+        '<button class="cta" id="flash-view" type="button" style="height:48px;min-width:160px;font-size:14px"><span>查看闪照</span></button>',
+        '</div>',
+        '</div>',
+      ].join('')
+      var button = document.getElementById('flash-view')
+      if (button) button.addEventListener('click', function () { viewFlash(item) })
+      return
+    }
+
+    stage.innerHTML = '<div class="detail-loading"><div class="loader"></div><span>读取图片…</span></div>'
+    loadAndDraw(item, stage).catch(function () {
+      stage.innerHTML = '<div class="detail-loading"><span>图片读取失败</span></div>'
+      showToast('这张图片读取失败')
+    })
+  }
+
+  async function getBlob(item) {
+    if (blobCache.has(item.id)) return blobCache.get(item.id)
+    var blob = await C.loadMedia(state.secret, state.key, item)
+    blobCache.set(item.id, blob)
+    return blob
+  }
+
+  function imageFromBlob(blob) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(blob)
+      var image = new Image()
+      image.onload = function () {
+        resolve({
+          source: image,
+          width: image.naturalWidth,
+          height: image.naturalHeight,
+          close: function () { URL.revokeObjectURL(url) }
+        })
+      }
+      image.onerror = function () {
+        URL.revokeObjectURL(url)
+        reject(new Error('图片解码失败'))
+      }
+      image.src = url
+    })
+  }
+
+  function decodeBlob(blob) {
+    if (typeof createImageBitmap === 'function') {
+      return createImageBitmap(blob).then(function (bitmap) {
+        return {
+          source: bitmap,
+          width: bitmap.width,
+          height: bitmap.height,
+          close: function () { bitmap.close && bitmap.close() }
+        }
+      }).catch(function () { return imageFromBlob(blob) })
+    }
+    return imageFromBlob(blob)
+  }
+
+  async function loadAndDraw(item, stage) {
+    var blob = await getBlob(item)
+    var decoded = await decodeBlob(blob)
+    var canvas = document.createElement('canvas')
+    canvas.className = 'full'
+    canvas.width = decoded.width
+    canvas.height = decoded.height
+    canvas.setAttribute('aria-label', '朋友圈图片')
+    var ctx = canvas.getContext('2d')
+    ctx.drawImage(decoded.source, 0, 0)
+    decoded.close()
+    stage.innerHTML = ''
+    stage.appendChild(canvas)
+  }
+
+  async function viewFlash(item) {
+    if (C.flashBurned(state.secret, item.id)) return
+    var allowed = await C.authorizeFlash(item, state.secret)
+    if (!allowed) {
+      showToast('这张闪照现在不能查看')
+      return
+    }
+    C.burnFlash(state.secret, item.id)
+    state.flashViewing = true
+    var stage = document.getElementById('detail-stage')
+    if (!stage) return
+    stage.innerHTML = '<div class="detail-loading"><div class="loader"></div><span>打开闪照…</span></div>'
+    try {
+      var blob = await getBlob(item)
+      var decoded = await decodeBlob(blob)
+      var wrap = document.createElement('div')
+      wrap.className = 'flash-view'
+      var canvas = document.createElement('canvas')
+      canvas.width = decoded.width
+      canvas.height = decoded.height
+      canvas.setAttribute('aria-label', '闪照')
+      canvas.getContext('2d').drawImage(decoded.source, 0, 0)
+      decoded.close()
+      var ring = document.createElement('div')
+      ring.className = 'flash-ring'
+      ring.style.setProperty('--p', '100')
+      var count = document.createElement('div')
+      count.className = 'flash-count'
+      count.textContent = '5'
+      wrap.appendChild(canvas)
+      stage.innerHTML = ''
+      stage.appendChild(wrap)
+      stage.appendChild(ring)
+      stage.appendChild(count)
+      startFlashCountdown(stage, ring, count)
+    } catch (error) {
+      stage.innerHTML = '<div class="detail-loading"><span>闪照读取失败</span></div>'
+    }
+  }
+
+  function startFlashCountdown(stage, ring, count) {
+    clearFlashTimer()
+    var deadline = Date.now() + 5000
+    state.flashDeadline = deadline
+    function tick() {
+      var left = Math.max(0, deadline - Date.now())
+      var ratio = left / 5000
+      if (ring) ring.style.setProperty('--p', String(ratio * 100))
+      if (count) count.textContent = String(Math.ceil(left / 1000))
+      if (left <= 0) {
+        clearFlashTimer()
+        state.flashViewing = false
+        renderBurn(stage, '闪照已焚毁')
+      }
+    }
+    tick()
+    state.flashTimer = setInterval(tick, 100)
+  }
+
+  function renderBurn(stage, message) {
+    stage.innerHTML = [
+      '<div class="burn">',
+      '<div class="burn-icon">' + FLAME_SVG + '</div>',
+      escape(message || '已焚毁'),
+      '</div>',
+    ].join('')
+  }
+
+  function closeDetail(options) {
+    var overlay = document.getElementById('overlay')
+    if (!overlay) return
+    clearFlashTimer()
+    state.flashViewing = false
+    stopMusic()
+    overlay.classList.remove('is-open')
+    document.body.classList.remove('has-overlay')
+    setTimeout(function () { overlay.remove() }, 220)
+    state.currentPost = null
+    state.currentIndex = 0
+    var fromPop = options && options.fromPop
+    if (!fromPop) {
+      try {
+        if (history.state && history.state.moment) history.back()
+        else history.replaceState(null, '', '#p=' + state.secret)
+      } catch (_) {}
+    }
+  }
+
+  async function getAudioBuffer(item) {
+    if (bufferCache.has(item.id)) return bufferCache.get(item.id)
+    var blob = await getBlob(item)
+    var data = await blob.arrayBuffer()
+    var ctx = audio.ctx
+    if (!ctx) throw new Error('no audio context')
+    var buffer = await new Promise(function (resolve, reject) {
+      var promise = ctx.decodeAudioData(data, resolve, reject)
+      if (promise && promise.then) promise.then(resolve, reject)
+    })
+    bufferCache.set(item.id, buffer)
+    return buffer
+  }
+
+  async function playMusic(post) {
+    if (!post || !post.music) return
+    if (audio.playing && audio.postId === post.id) return
+    await unlockAudio()
+    var ctx = audio.ctx
+    if (!ctx) throw new Error('no audio')
+    stopMusic()
+    var buffer = await getAudioBuffer(post.music)
+    var source = ctx.createBufferSource()
+    var gain = ctx.createGain()
+    gain.gain.value = 0.82
+    source.buffer = buffer
+    source.loop = true
+    source.connect(gain)
+    gain.connect(ctx.destination)
+    source.start(0)
+    audio.source = source
+    audio.gain = gain
+    audio.postId = post.id
+    audio.mediaId = post.music.id
+    audio.playing = true
+    updateMusicUI()
+  }
+
+  function stopMusic() {
+    if (audio.source) {
+      try { audio.source.stop() } catch (_) {}
+      try { audio.source.disconnect() } catch (_) {}
+    }
+    if (audio.gain) {
+      try { audio.gain.disconnect() } catch (_) {}
+    }
+    audio.source = null
+    audio.gain = null
+    audio.postId = null
+    audio.mediaId = null
+    audio.playing = false
+    updateMusicUI()
+  }
+
+  function updateMusicUI() {
+    document.querySelectorAll('.music[data-music]').forEach(function (node) {
+      var id = node.getAttribute('data-music')
+      node.classList.toggle('is-playing', audio.playing && audio.postId === id)
+    })
+  }
+
+  function toggleMusicForPost(postId) {
+    var post = findPost(postId)
+    if (!post || !post.music) return
+    if (audio.playing && audio.postId === postId) {
+      stopMusic()
+      return
+    }
+    playMusic(post).catch(function () { showToast('配乐播放失败') })
+  }
+
+  function onDocumentClick(event) {
+    var thumb = event.target.closest && event.target.closest('.thumb')
+    if (thumb) {
+      var postId = thumb.getAttribute('data-post')
+      var index = Number(thumb.getAttribute('data-index')) || 0
+      var post = findPost(postId)
+      if (post) openPost(post, index, false)
+      return
+    }
+    var music = event.target.closest && event.target.closest('.music[data-music]')
+    if (music) {
+      toggleMusicForPost(music.getAttribute('data-music'))
+    }
+  }
+
+  function onKeyDown(event) {
+    if (!document.getElementById('overlay')) return
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      closeDetail()
+    } else if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      stepMedia(-1)
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      stepMedia(1)
+    }
+  }
+
+  function onVisibility() {
+    if (document.hidden) {
+      stopMusic()
+      if (state.flashViewing) {
+        clearFlashTimer()
+        state.flashViewing = false
+        var stage = document.getElementById('detail-stage')
+        if (stage) renderBurn(stage, '切到后台，闪照已焚毁')
+      }
+    }
+  }
+
+  function onPopState() {
+    if (document.getElementById('overlay')) closeDetail({ fromPop: true })
+  }
+
+  function preventSave(event) {
+    var target = event.target
+    if (!target) return
+    if (target.closest && target.closest('canvas, .thumb')) event.preventDefault()
+  }
+
+  function boot() {
+    document.addEventListener('click', onDocumentClick)
+    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('visibilitychange', onVisibility)
+    document.addEventListener('contextmenu', preventSave)
+    document.addEventListener('dragstart', preventSave)
+    window.addEventListener('popstate', onPopState)
+    document.addEventListener('pointerdown', function () { unlockAudio() }, { once: true })
+
+    var entry = C.parseHash()
+    if (!entry.secret) {
+      renderLocked()
+      return
+    }
+    state.secret = entry.secret
+    state.view = 'welcome'
+    setPalette({ palette: 'aurora' })
+    renderWelcome()
+    // Warm the manifest while the greeting is on screen; the click still owns
+    // the transition so it also doubles as the audio gesture.
+    setTimeout(function () {
+      if (state.view === 'welcome') ensureManifest().catch(function () {})
+    }, 60)
+
+    window.__MOMENTS_APP__ = {
+      state: state,
+      openPost: openPost,
+      closeDetail: closeDetail,
+      playMusic: playMusic,
+      stopMusic: stopMusic,
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot, { once: true })
+  } else {
+    boot()
+  }
+})()
+</script>
+</body>
+</html>
