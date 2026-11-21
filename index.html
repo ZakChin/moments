@@ -1663,6 +1663,7 @@ body::after {
     if (!tooBig && CFG.cdnBase) out.push(CFG.cdnBase + path)
     if (!tooBig && CFG.fastlyBase) out.push(CFG.fastlyBase + path)
     out.push('./' + path)
+    if (CFG.flashEndpoint) out.push(String(CFG.flashEndpoint).replace(/\/+$/, '') + '/media/' + path)
     return out
   }
 
