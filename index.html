@@ -8,7 +8,7 @@
 <meta name="color-scheme" content="dark">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://fastly.jsdelivr.net; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://cdn.jsdelivr.net https://fastly.jsdelivr.net https://moments-flash.qinzeqing84.workers.dev; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>私人朋友圈</title>
@@ -673,6 +673,56 @@ body::after {
   display: none;
 }
 
+.like {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  margin-left: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .025);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.like:hover {
+  border-color: rgba(255, 255, 255, .18);
+  color: var(--text);
+}
+
+.like:active {
+  transform: scale(.96);
+}
+
+.like .heart {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.like.is-liked {
+  color: #ff6b9d;
+  border-color: rgba(255, 107, 157, .34);
+  background: rgba(255, 107, 157, .07);
+}
+
+.like.is-liked .heart {
+  filter: drop-shadow(0 0 8px rgba(255, 107, 157, .55));
+}
+
+.like-count:empty {
+  display: none;
+}
+
+.detail-foot .like {
+  margin-top: 14px;
+}
+
 .empty {
   padding: 70px 0 50px;
   text-align: center;
@@ -1198,7 +1248,7 @@ body::after {
 <div class="aurora" aria-hidden="true"></div>
 <div id="app"><div class="boot">正在打开…</div></div>
 <noscript><div class="boot">请开启 JavaScript 后查看</div></noscript>
-<script>window.__MOMENTS__ = {"login":"zakchin","repo":"moments","cdnBase":"https://cdn.jsdelivr.net/gh/zakchin/moments@main/","fastlyBase":"https://fastly.jsdelivr.net/gh/zakchin/moments@main/","v":1};</script>
+<script>window.__MOMENTS__ = {"login":"zakchin","repo":"moments","cdnBase":"https://cdn.jsdelivr.net/gh/zakchin/moments@main/","fastlyBase":"https://fastly.jsdelivr.net/gh/zakchin/moments@main/","flashEndpoint":"https://moments-flash.qinzeqing84.workers.dev","siteId":"bd7482cbb314","v":1};</script>
 <script>(function (global) {
   'use strict'
 
@@ -1349,14 +1399,13 @@ body::after {
     return out
   }
 
-  async function loadMedia(secret, key, item) {
+  async function fetchMedia(item) {
     var sources = mediaSources(item)
     var last = null
     for (var i = 0; i < sources.length; i += 1) {
       try {
         var bytes = await fetchBytes(sources[i], { timeout: 12000, cache: 'force-cache' })
-        var plain = await decryptBytes(new Uint8Array(bytes), key)
-        return new Blob([plain], { type: item.mime || 'application/octet-stream' })
+        return new Uint8Array(bytes)
       } catch (error) {
         last = error
       }
@@ -1364,6 +1413,130 @@ body::after {
     var err = new Error('媒体读取失败')
     err.cause = last
     throw err
+  }
+
+  async function decryptMedia(bytes, key, item) {
+    var plain = await decryptBytes(bytes, key)
+    return new Blob([plain], { type: item.mime || 'application/octet-stream' })
+  }
+
+  async function loadMedia(secret, key, item) {
+    return decryptMedia(await fetchMedia(item), key, item)
+  }
+
+  function apiUrl(path) {
+    if (!CFG.flashEndpoint) throw new Error('Cloudflare 服务未配置')
+    return String(CFG.flashEndpoint).replace(/\/+$/, '') + path
+  }
+
+  async function claimFlash(item, postId) {
+    if (!CFG.flashEndpoint || !CFG.siteId) throw new Error('闪照服务未配置')
+    var timeout = withTimeout(9000)
+    try {
+      var response = await fetch(apiUrl('/v1/flash/claim'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          siteId: CFG.siteId,
+          postId: postId,
+          mediaId: item.id,
+        }),
+        credentials: 'omit',
+        cache: 'no-store',
+        signal: timeout.signal,
+      })
+      if (response.status === 410) return null
+      if (!response.ok) throw new Error('闪照服务返回 HTTP ' + response.status)
+      var data = await response.json()
+      return data && data.key ? String(data.key) : null
+    } finally {
+      timeout.done()
+    }
+  }
+
+  function visitorStorageKey() {
+    return 'moments:visitor'
+  }
+
+  function visitorId() {
+    try {
+      var saved = localStorage.getItem(visitorStorageKey())
+      if (saved && /^[A-Za-z0-9_-]{16,64}$/.test(saved)) return saved
+    } catch (_) {}
+    var bytes = new Uint8Array(18)
+    crypto.getRandomValues(bytes)
+    var value = bytesToB64(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+    try { localStorage.setItem(visitorStorageKey(), value) } catch (_) {}
+    return value
+  }
+
+  async function visitorHash() {
+    if (!CFG.siteId) throw new Error('站点 id 未配置')
+    var digest = await crypto.subtle.digest(
+      'SHA-256',
+      enc.encode(String(CFG.siteId) + ':' + visitorId())
+    )
+    return Array.from(new Uint8Array(digest))
+      .map(function (n) { return n.toString(16).padStart(2, '0') })
+      .join('')
+  }
+
+  function likedStorageKey(postId) {
+    return 'moments:liked:' + String(CFG.siteId || '') + ':' + String(postId)
+  }
+
+  function isLiked(postId) {
+    try { return localStorage.getItem(likedStorageKey(postId)) === '1' } catch (_) { return false }
+  }
+
+  function markLiked(postId, value) {
+    try {
+      if (value) localStorage.setItem(likedStorageKey(postId), '1')
+      else localStorage.removeItem(likedStorageKey(postId))
+    } catch (_) {}
+  }
+
+  async function loadLikes() {
+    if (!CFG.flashEndpoint || !CFG.siteId) return {}
+    var timeout = withTimeout(9000)
+    try {
+      var response = await fetch(
+        apiUrl('/v1/likes?siteId=' + encodeURIComponent(CFG.siteId)),
+        { credentials: 'omit', cache: 'no-store', signal: timeout.signal }
+      )
+      if (!response.ok) throw new Error('点赞服务返回 HTTP ' + response.status)
+      var data = await response.json()
+      return data && data.counts && typeof data.counts === 'object' ? data.counts : {}
+    } finally {
+      timeout.done()
+    }
+  }
+
+  async function setLike(postId, unlike) {
+    if (!CFG.flashEndpoint || !CFG.siteId) throw new Error('点赞服务未配置')
+    var hash = await visitorHash()
+    var timeout = withTimeout(9000)
+    try {
+      var response = await fetch(apiUrl('/v1/like'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          siteId: CFG.siteId,
+          postId: postId,
+          visitorHash: hash,
+          unlike: Boolean(unlike),
+        }),
+        credentials: 'omit',
+        cache: 'no-store',
+        signal: timeout.signal,
+      })
+      if (!response.ok) throw new Error('点赞服务返回 HTTP ' + response.status)
+      var data = await response.json()
+      markLiked(postId, Boolean(data && data.liked))
+      return { count: Number((data && data.count) || 0), liked: Boolean(data && data.liked) }
+    } finally {
+      timeout.done()
+    }
   }
 
   function escapeHtml(value) {
@@ -1480,6 +1653,12 @@ body::after {
     openManifest: openManifest,
     loadManifest: loadManifest,
     loadMedia: loadMedia,
+    fetchMedia: fetchMedia,
+    decryptMedia: decryptMedia,
+    claimFlash: claimFlash,
+    loadLikes: loadLikes,
+    setLike: setLike,
+    isLiked: isLiked,
     mediaSources: mediaSources,
     escapeHtml: escapeHtml,
     greeting: greeting,
@@ -1499,6 +1678,7 @@ body::after {
   'use strict'
 
   var C = window.MomentsCore
+  var CFG = window.__MOMENTS__ || {}
   var root = document.getElementById('app')
   var state = {
     secret: null,
@@ -1515,6 +1695,9 @@ body::after {
     flashTimer: null,
     flashDeadline: 0,
     flashViewing: false,
+    flashLoading: false,
+    likes: {},
+    likeBusy: {},
   }
 
   var audio = {
@@ -1646,6 +1829,7 @@ body::after {
       state.posts = Array.isArray(loaded.payload.posts) ? loaded.payload.posts : []
       setPalette(state.profile)
       renderFeed()
+      refreshLikes()
       var entry = C.parseHash()
       if (entry.postId) {
         var index = entry.mediaIndex ? Number(entry.mediaIndex) : 0
@@ -1706,6 +1890,55 @@ body::after {
     ].join('')
   }
 
+  function likeHtml(post) {
+    if (!CFG.flashEndpoint || !CFG.siteId) return ''
+    var count = Number(state.likes[post.id] || 0)
+    var liked = C.isLiked(post.id)
+    return [
+      '<button class="like' + (liked ? ' is-liked' : '') + '" type="button" data-like="' + escape(post.id) + '" aria-pressed="' + (liked ? 'true' : 'false') + '" aria-label="点赞">',
+      '<span class="heart">♥</span>',
+      '<span class="like-count">' + (count > 0 ? count : '') + '</span>',
+      '</button>',
+    ].join('')
+  }
+
+  function updateLikeUI() {
+    var nodes = document.querySelectorAll('[data-like]')
+    for (var i = 0; i < nodes.length; i += 1) {
+      var id = nodes[i].getAttribute('data-like')
+      var count = Number(state.likes[id] || 0)
+      var liked = C.isLiked(id)
+      nodes[i].classList.toggle('is-liked', liked)
+      nodes[i].setAttribute('aria-pressed', liked ? 'true' : 'false')
+      var counter = nodes[i].querySelector('.like-count')
+      if (counter) counter.textContent = count > 0 ? String(count) : ''
+    }
+  }
+
+  async function refreshLikes() {
+    if (!CFG.flashEndpoint || !CFG.siteId) return
+    try {
+      state.likes = await C.loadLikes()
+      updateLikeUI()
+    } catch (_) {
+      /* 点赞是锦上添花，服务不可用时保持安静 */
+    }
+  }
+
+  async function toggleLike(postId) {
+    if (!CFG.flashEndpoint || !CFG.siteId || state.likeBusy[postId]) return
+    state.likeBusy[postId] = true
+    try {
+      var data = await C.setLike(postId, C.isLiked(postId))
+      state.likes[postId] = data.count
+      updateLikeUI()
+    } catch (_) {
+      showToast('点赞失败，稍后再试')
+    } finally {
+      state.likeBusy[postId] = false
+    }
+  }
+
   function renderFeed() {
     state.view = 'feed'
     clearInterval(greetingTimer)
@@ -1737,6 +1970,7 @@ body::after {
           if (post.text) html.push('<p class="post-text">' + escape(post.text) + '</p>')
           html.push(mediaGrid(post))
           html.push(musicHtml(post))
+          html.push(likeHtml(post))
           html.push('</article>')
         })
         html.push('</div></section>')
@@ -1846,11 +2080,11 @@ body::after {
     var foot = document.getElementById('detail-foot')
     if (!foot) return
     var post = state.currentPost
-    if (!post || !post.music) {
+    if (!post) {
       foot.innerHTML = ''
       return
     }
-    foot.innerHTML = musicHtml(post)
+    foot.innerHTML = musicHtml(post) + likeHtml(post)
   }
 
   function updateDetailCounter() {
@@ -1981,20 +2215,50 @@ body::after {
   }
 
   async function viewFlash(item) {
-    if (C.flashBurned(state.secret, item.id)) return
-    var allowed = await C.authorizeFlash(item, state.secret)
-    if (!allowed) {
-      showToast('这张闪照现在不能查看')
+    if (C.flashBurned(state.secret, item.id) || state.flashLoading) return
+    var post = state.currentPost
+    if (!post) return
+    var server = item.scheme === 'flash-v1'
+    if (server && !CFG.flashEndpoint) {
+      showToast('真闪照服务未配置，暂时无法查看')
       return
     }
-    C.burnFlash(state.secret, item.id)
-    state.flashViewing = true
     var stage = document.getElementById('detail-stage')
     if (!stage) return
+    state.flashLoading = true
     stage.innerHTML = '<div class="detail-loading"><div class="loader"></div><span>打开闪照…</span></div>'
     try {
-      var blob = await getBlob(item)
+      var blob
+      if (server) {
+        // 先把密文拿到手，再消耗一次性 key；claim 失败时不会白白烧掉闪照。
+        var cipher = await C.fetchMedia(item)
+        var flashKey = await C.claimFlash(item, post.id)
+        if (!flashKey) {
+          C.burnFlash(state.secret, item.id)
+          renderBurn(stage, '这张闪照已经被看过了')
+          return
+        }
+        C.burnFlash(state.secret, item.id)
+        var mediaKey = await crypto.subtle.importKey(
+          'raw',
+          C.b64urlToBytes(flashKey),
+          { name: 'AES-GCM' },
+          false,
+          ['decrypt']
+        )
+        blob = await C.decryptMedia(cipher, mediaKey, item)
+      } else {
+        var allowed = await C.authorizeFlash(item, state.secret)
+        if (!allowed) {
+          showToast('这张闪照现在不能查看')
+          return
+        }
+        C.burnFlash(state.secret, item.id)
+        blob = await getBlob(item)
+      }
+
       var decoded = await decodeBlob(blob)
+      state.flashViewing = true
       var wrap = document.createElement('div')
       wrap.className = 'flash-view'
       var canvas = document.createElement('canvas')
@@ -2017,6 +2281,8 @@ body::after {
       startFlashCountdown(stage, ring, count)
     } catch (error) {
       stage.innerHTML = '<div class="detail-loading"><span>闪照读取失败</span></div>'
+    } finally {
+      state.flashLoading = false
     }
   }
 
@@ -2146,6 +2412,11 @@ body::after {
       var index = Number(thumb.getAttribute('data-index')) || 0
       var post = findPost(postId)
       if (post) openPost(post, index, false)
+      return
+    }
+    var like = event.target.closest && event.target.closest('.like[data-like]')
+    if (like) {
+      toggleLike(like.getAttribute('data-like'))
       return
     }
     var music = event.target.closest && event.target.closest('.music[data-music]')
