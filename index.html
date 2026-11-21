@@ -1613,6 +1613,7 @@ body::after {
     if (!state.manifestPromise) {
       state.manifestPromise = C.loadManifest(state.secret).catch(function (error) {
         state.manifestError = error
+        state.manifestPromise = null
         throw error
       })
     }
