@@ -1717,32 +1717,6 @@ body::after {
     return String(CFG.flashEndpoint).replace(/\/+$/, '') + path
   }
 
-  async function claimFlash(item, postId) {
-    if (!CFG.flashEndpoint || !CFG.siteId) throw new Error('闪照服务未配置')
-    var timeout = withTimeout(9000)
-    try {
-      var response = await fetch(apiUrl('/v1/flash/claim'), {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          siteId: CFG.siteId,
-          postId: postId,
-          mediaId: item.id,
-          visitorHash: await visitorHash(),
-        }),
-        credentials: 'omit',
-        cache: 'no-store',
-        signal: timeout.signal,
-      })
-      if (response.status === 410) return null
-      if (!response.ok) throw new Error('闪照服务返回 HTTP ' + response.status)
-      var data = await response.json()
-      return data && data.key ? String(data.key) : null
-    } finally {
-      timeout.done()
-    }
-  }
-
   function visitorStorageKey() {
     return 'moments:visitor'
   }
@@ -2017,7 +1991,6 @@ body::after {
     loadMedia: loadMedia,
     fetchMedia: fetchMedia,
     decryptMedia: decryptMedia,
-    claimFlash: claimFlash,
     loadLikes: loadLikes,
     setLike: setLike,
     isLiked: isLiked,
@@ -2815,44 +2788,17 @@ body::after {
 
   async function viewFlash(item) {
     if (C.flashBurned(state.secret, item.id) || state.flashLoading) return
-    var post = state.currentPost
-    if (!post) return
-    var server = item.scheme === 'flash-v1'
-    if (server && !CFG.flashEndpoint) {
-      showToast('真闪照服务未配置，暂时无法查看')
-      return
-    }
     var stage = document.getElementById('detail-stage')
     if (!stage) return
     state.flashLoading = true
     stage.innerHTML = '<div class="detail-loading"><div class="loader"></div><span>打开闪照…</span></div>'
     try {
-      var blob
-      if (server) {
-        // 先把密文拿到手，再消耗一次性 key；claim 失败时不会白白烧掉闪照。
-        var cipher = await C.fetchMedia(item)
-        var flashKey = await C.claimFlash(item, post.id)
-        if (!flashKey) {
-          C.burnFlash(state.secret, item.id)
-          renderBurn(stage, '这张闪照已经被看过了')
-          return
-        }
-        var mediaKey = await crypto.subtle.importKey(
-          'raw',
-          C.b64urlToBytes(flashKey),
-          { name: 'AES-GCM' },
-          false,
-          ['decrypt']
-        )
-        blob = await C.decryptMedia(cipher, mediaKey, item)
-      } else {
-        var allowed = await C.authorizeFlash(item, state.secret)
-        if (!allowed) {
-          showToast('这张闪照现在不能查看')
-          return
-        }
-        blob = await getBlob(item)
+      var allowed = await C.authorizeFlash(item, state.secret)
+      if (!allowed) {
+        showToast('这张闪照现在不能查看')
+        return
       }
+      var blob = await getBlob(item)
 
       var decoded = await decodeBlob(blob)
       C.burnFlash(state.secret, item.id)
