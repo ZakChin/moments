@@ -1315,6 +1315,536 @@ body::after {
   transform: translate(-50%, 0);
 }
 
+/* ---------- welcome actions ---------- */
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.welcome-note {
+  margin: 2px 0 0;
+  color: var(--faint);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+.cta.cta-qa {
+  min-width: 210px;
+  height: 46px;
+  gap: 9px;
+  padding: 0 26px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  animation: gradient-pan 11s linear infinite reverse, cta-breathe 9s ease-in-out infinite;
+}
+
+.cta.cta-qa::before {
+  inset: 6px;
+  filter: blur(18px);
+  opacity: .42;
+  animation: gradient-pan 11s linear infinite reverse;
+}
+
+.cta.cta-qa .dot {
+  width: 5px;
+  height: 5px;
+  box-shadow: 0 0 8px #fff;
+}
+
+.cta.cta-qa:hover {
+  transform: translateY(-1px) scale(1.008);
+}
+
+/* ---------- q&a ---------- */
+
+.qa {
+  position: relative;
+  z-index: 2;
+  max-width: var(--content);
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: 22px 22px calc(124px + env(safe-area-inset-bottom));
+}
+
+.qa-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0 26px;
+}
+
+.qa-heading {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.qa-heading h1 {
+  margin: 0;
+  font-family: "Songti SC", "Noto Serif CJK SC", "STSong", "SimSun", serif;
+  font-size: clamp(26px, 5vw, 34px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+
+.qa-heading p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.qa-spacer {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+}
+
+.qa-wall {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.qa-note {
+  position: relative;
+  isolation: isolate;
+  padding: 16px 16px 13px;
+  border-radius: 16px;
+  background:
+    radial-gradient(130% 90% at 12% 0%, hsl(var(--qa-hue, 210) 92% 64% / .10), transparent 62%),
+    var(--card-soft);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .34);
+  content-visibility: auto;
+  contain-intrinsic-size: 190px;
+  animation: qa-rise .5s cubic-bezier(.22, .61, .36, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+.qa-note::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(140deg,
+    hsl(var(--qa-hue, 210) 92% 68%),
+    hsl(calc(var(--qa-hue, 210) + 70) 88% 62%),
+    hsl(calc(var(--qa-hue, 210) + 140) 90% 66%),
+    hsl(var(--qa-hue, 210) 92% 68%));
+  background-size: 260% 260%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: .85;
+  animation: qa-border var(--qa-dur, 9s) linear infinite;
+}
+
+.qa-ask {
+  position: relative;
+  margin: 0;
+  padding-left: 26px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.qa-ask::before,
+.qa-answer::before {
+  position: absolute;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 6px;
+  color: hsl(var(--qa-hue, 210) 92% 74%);
+  font-size: 10px;
+  line-height: 1;
+  border: 1px solid hsl(var(--qa-hue, 210) 90% 66% / .38);
+  background: hsl(var(--qa-hue, 210) 90% 64% / .12);
+}
+
+.qa-ask::before {
+  content: "问";
+  top: 1px;
+}
+
+.qa-answer {
+  position: relative;
+  margin: 13px 0 0;
+  padding: 12px 0 0 26px;
+  border-top: 1px solid var(--line);
+  color: var(--text);
+  font-size: 14.5px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.qa-answer::before {
+  content: "答";
+  top: 13px;
+}
+
+.qa-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 13px;
+  color: var(--faint);
+  font-size: 10.5px;
+  letter-spacing: .04em;
+}
+
+.qa-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.qa-meta span::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: hsl(var(--qa-hue, 210) 92% 68%);
+  box-shadow: 0 0 8px hsl(var(--qa-hue, 210) 92% 68% / .8);
+}
+
+.qa-empty {
+  padding: 76px 0 56px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.qa-empty .empty-dot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--gradient);
+  background-size: 300% 100%;
+  animation: gradient-pan 8s linear infinite;
+  box-shadow: 0 0 18px rgba(236, 72, 153, .5);
+}
+
+.qa-retry {
+  margin-top: 16px;
+  padding: 9px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.qa-retry:hover {
+  border-color: rgba(255, 255, 255, .3);
+  background: rgba(255, 255, 255, .05);
+}
+
+.qa-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 20px 22px calc(18px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .82) 46%, #000);
+  pointer-events: none;
+}
+
+.qa-dock .cta {
+  pointer-events: auto;
+}
+
+.qa-compose {
+  min-width: 240px;
+}
+
+.qa-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 12px;
+  background: rgba(0, 0, 0, .62);
+  opacity: 0;
+  transition: opacity .22s ease;
+  backdrop-filter: blur(6px);
+}
+
+.qa-sheet[hidden] {
+  display: none;
+}
+
+.qa-sheet.is-open {
+  opacity: 1;
+}
+
+.qa-sheet-panel {
+  position: relative;
+  width: min(100%, 560px);
+  padding: 14px 18px calc(20px + env(safe-area-inset-bottom));
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: #0b0b10;
+  box-shadow: 0 -18px 60px rgba(0, 0, 0, .6);
+  transform: translateY(22px);
+  opacity: .6;
+  transition: transform .26s cubic-bezier(.22, .61, .36, 1), opacity .26s ease;
+}
+
+.qa-sheet.is-open .qa-sheet-panel {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.qa-sheet-bar {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .18);
+}
+
+.qa-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.qa-sheet-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.qa-sheet-close {
+  width: 32px;
+  height: 32px;
+}
+
+.qa-sheet-close svg {
+  width: 15px;
+  height: 15px;
+}
+
+.qa-input {
+  display: block;
+  width: 100%;
+  min-height: 96px;
+  max-height: 40vh;
+  max-height: 40svh;
+  margin-top: 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .03);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.7;
+  resize: none;
+  outline: none;
+  transition: border-color .2s ease;
+}
+
+.qa-input:focus {
+  border-color: rgba(255, 255, 255, .24);
+}
+
+.qa-sheet-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.qa-count {
+  color: var(--faint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
+
+.qa-count.is-full {
+  color: var(--g3);
+}
+
+.qa-send {
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gradient);
+  background-size: 300% 100%;
+  color: #0a0a0f;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qa-send:disabled {
+  opacity: .55;
+  cursor: default;
+}
+
+.qa-hint {
+  margin: 10px 2px 0;
+  color: var(--faint);
+  font-size: 10.5px;
+}
+
+.qa-notice {
+  margin: 6px 2px 0;
+  color: var(--g3);
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+.qa-notice:empty {
+  display: none;
+}
+
+.qa .icon-btn:focus-visible,
+.qa-sheet .icon-btn:focus-visible,
+.qa-retry:focus-visible,
+.qa-send:focus-visible,
+.qa-input:focus-visible,
+.cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #000, 0 0 0 4px rgba(236, 72, 153, .55), 0 0 24px rgba(34, 211, 238, .35);
+}
+
+html.is-hidden .aurora,
+html.is-hidden .aurora::after,
+html.is-hidden .cta,
+html.is-hidden .cta::before,
+html.is-hidden .cta::after,
+html.is-hidden .qa-note,
+html.is-hidden .qa-note::before,
+html.is-hidden .empty .empty-dot {
+  animation-play-state: paused !important;
+}
+
+@keyframes qa-rise {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes qa-border {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@media (max-width: 640px) {
+  .welcome-actions {
+    gap: 12px;
+  }
+
+  .cta.cta-qa {
+    width: auto;
+    height: 44px;
+    padding: 0 24px;
+  }
+
+  .qa {
+    padding: 18px 16px calc(112px + env(safe-area-inset-bottom));
+  }
+
+  .qa-top {
+    gap: 10px;
+    padding-bottom: 20px;
+  }
+
+  .qa-heading p {
+    font-size: 11.5px;
+  }
+
+  .qa-wall {
+    gap: 10px;
+  }
+
+  .qa-note {
+    padding: 13px 13px 11px;
+    border-radius: 14px;
+  }
+
+  .qa-ask {
+    padding-left: 23px;
+    font-size: 11.5px;
+  }
+
+  .qa-answer {
+    padding-left: 23px;
+    font-size: 13.5px;
+  }
+
+  .qa-ask::before,
+  .qa-answer::before {
+    width: 16px;
+    height: 16px;
+  }
+
+  .qa-compose {
+    min-width: 210px;
+  }
+
+  .qa-sheet {
+    padding: 0;
+  }
+
+  .qa-sheet-panel {
+    width: 100%;
+    padding: 12px 14px calc(16px + env(safe-area-inset-bottom));
+    border-right: 0;
+    border-left: 0;
+    border-radius: 22px 22px 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta.cta-qa,
+  .cta.cta-qa::before,
+  .qa-note,
+  .qa-note::before {
+    animation: none !important;
+    background-position: 50% 50%;
+  }
+
+  .qa-sheet,
+  .qa-sheet-panel {
+    transition: none !important;
+  }
+}
+
 /* ---------- motion ---------- */
 
 @keyframes gradient-pan {
@@ -1552,6 +2082,7 @@ body::after {
       secret: secret,
       postId: params.get('post') || null,
       mediaIndex: params.get('i') || null,
+      qa: params.get('qa') === '1',
     }
   }
 
@@ -1877,6 +2408,187 @@ body::after {
     }
   }
 
+  // ---- 匿名问答（小纸条） ----
+
+  var qaStorageKey = 'moments:qa:' + String(CFG.siteId || '')
+  var QA_CACHE_MS = 10 * 60 * 1000
+  var QA_LIMIT = 280
+
+  function qaStore() {
+    try {
+      if (typeof sessionStorage !== 'undefined') return sessionStorage
+    } catch (_) {}
+    return null
+  }
+
+  function readQaCache() {
+    var store = qaStore()
+    if (!store) return null
+    try {
+      var raw = store.getItem(qaStorageKey)
+      if (!raw) return null
+      var data = JSON.parse(raw)
+      if (!data || typeof data !== 'object') return null
+      if (typeof data.at !== 'number' || !Array.isArray(data.questions)) return null
+      if (Date.now() - data.at > QA_CACHE_MS) return null
+      return data.questions
+    } catch (_) {
+      return null
+    }
+  }
+
+  function writeQaCache(questions) {
+    var store = qaStore()
+    if (!store) return
+    try {
+      store.setItem(
+        qaStorageKey,
+        JSON.stringify({
+          at: Date.now(),
+          questions: Array.isArray(questions) ? questions.slice(0, 60) : [],
+        })
+      )
+    } catch (_) {
+      /* 本地快照只是加速；写不进去不影响功能 */
+    }
+  }
+
+  async function loadQuestions() {
+    if (!CFG.flashEndpoint || !CFG.siteId) throw new Error('问答还没开张（主人还没接上 Cloudflare）')
+    var timeout = withTimeout(12000)
+    try {
+      var response = await fetch(
+        apiUrl('/v1/questions?siteId=' + encodeURIComponent(CFG.siteId)),
+        { credentials: 'omit', cache: 'no-store', signal: timeout.signal }
+      )
+      if (response.status === 404) throw new Error('问答接口还没更新，请主人重新部署 Worker')
+      if (!response.ok) throw new Error('问答服务返回 HTTP ' + response.status)
+      var data = null
+      try { data = await response.json() } catch (_) {}
+      var list = data && Array.isArray(data.questions) ? data.questions : []
+      var cleaned = []
+      list.forEach(function (item) {
+        if (!item) return
+        var id = String(item.id || '')
+        var answer = String(item.answer || '')
+        if (!id || !answer) return
+        cleaned.push({
+          id: id,
+          body: String(item.body || ''),
+          answer: answer,
+          createdAt: Number(item.createdAt) || 0,
+          answeredAt: Number(item.answeredAt) || 0,
+        })
+      })
+      writeQaCache(cleaned)
+      return cleaned
+    } finally {
+      timeout.done()
+    }
+  }
+
+  async function askQuestion(body) {
+    if (!CFG.flashEndpoint || !CFG.siteId) throw new Error('问答还没开张（主人还没接上 Cloudflare）')
+    var text = String(body == null ? '' : body).replace(/\r\n/g, '\n').trim()
+    if (!text) throw new Error('先写点什么吧')
+    if (Array.from(text).length > QA_LIMIT) throw new Error('一张纸条最多 ' + QA_LIMIT + ' 字')
+    var hash = await visitorHash()
+    var timeout = withTimeout(20000)
+    try {
+      var response = await fetch(apiUrl('/v1/question'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          siteId: CFG.siteId,
+          questionId: commentId(),
+          body: text,
+          visitorHash: hash,
+        }),
+        credentials: 'omit',
+        cache: 'no-store',
+        signal: timeout.signal,
+      })
+      var data = null
+      try { data = await response.json() } catch (_) {}
+      if (!response.ok) {
+        if (response.status === 404) throw new Error('问答接口还没更新，请主人重新部署 Worker')
+        if (response.status === 429 && data && data.error === 'too_many') throw new Error('墙边纸条太多了，晚点再递')
+        if (response.status === 429) throw new Error('慢一点，刚递过一张')
+        if (data && data.error === 'EMPTY_QUESTION') throw new Error('先写点什么吧')
+        throw new Error('问答服务返回 HTTP ' + response.status)
+      }
+      return data && data.question ? data.question : { body: text, status: 'pending' }
+    } finally {
+      timeout.done()
+    }
+  }
+
+  function qaHue(id) {
+    var text = String(id || '')
+    var sum = 7
+    for (var i = 0; i < text.length; i += 1) sum = (sum * 31 + text.charCodeAt(i)) % 360
+    return sum
+  }
+
+  var statsStorageKey = 'moments:stats:' + String(CFG.siteId || '')
+
+  function readStatsCache() {
+    try {
+      var raw = localStorage.getItem(statsStorageKey)
+      if (!raw) return null
+      var data = JSON.parse(raw)
+      if (!data || typeof data !== 'object') return null
+      if (!data.likes || typeof data.likes !== 'object') return null
+      if (!data.commentCounts || typeof data.commentCounts !== 'object') return null
+      return {
+        likes: data.likes,
+        commentCounts: data.commentCounts,
+        updatedAt: Number(data.updatedAt) || 0,
+      }
+    } catch (_) {
+      return null
+    }
+  }
+
+  function writeStatsCache(snapshot) {
+    if (!snapshot) return
+    try {
+      localStorage.setItem(
+        statsStorageKey,
+        JSON.stringify({
+          likes: snapshot.likes || {},
+          commentCounts: snapshot.commentCounts || {},
+          updatedAt: Math.floor(Date.now() / 1000),
+        })
+      )
+    } catch (_) {
+      /* 本地快照只是加速；写不进去不影响功能 */
+    }
+  }
+
+  async function fetchStats() {
+    if (!CFG.flashEndpoint || !CFG.siteId) return null
+    var timeout = withTimeout(8000)
+    try {
+      var response = await fetch(
+        apiUrl('/v1/stats?siteId=' + encodeURIComponent(CFG.siteId)),
+        { credentials: 'omit', cache: 'no-store', signal: timeout.signal }
+      )
+      if (!response.ok) throw new Error('点赞服务返回 HTTP ' + response.status)
+      var data = await response.json()
+      if (!data || !data.likes || typeof data.likes !== 'object') throw new Error('stats 数据无效')
+      var snapshot = {
+        likes: data.likes,
+        commentCounts: data.commentCounts && typeof data.commentCounts === 'object' ? data.commentCounts : {},
+        updatedAt: Number(data.updatedAt) || Math.floor(Date.now() / 1000),
+      }
+      writeStatsCache(snapshot)
+      return snapshot
+    } finally {
+      timeout.done()
+    }
+  }
+
   function escapeHtml(value) {
     return String(value == null ? '' : value)
       .replace(/&/g, '&amp;')
@@ -1999,6 +2711,14 @@ body::after {
     loadComments: loadComments,
     addComment: addComment,
     loadCommentCounts: loadCommentCounts,
+    loadQuestions: loadQuestions,
+    askQuestion: askQuestion,
+    qaHue: qaHue,
+    readQaCache: readQaCache,
+    writeQaCache: writeQaCache,
+    fetchStats: fetchStats,
+    readStatsCache: readStatsCache,
+    writeStatsCache: writeStatsCache,
     mediaSources: mediaSources,
     escapeHtml: escapeHtml,
     greeting: greeting,
@@ -2024,6 +2744,7 @@ body::after {
     secret: null,
     manifestPromise: null,
     manifestError: null,
+    statsPromise: null,
     payload: null,
     key: null,
     profile: null,
@@ -2045,6 +2766,13 @@ body::after {
     commentsOpen: false,
     commentsPostId: '',
     commentBusy: false,
+    qaStatus: 'idle',
+    qaQuestions: [],
+    qaError: '',
+    qaNotice: '',
+    qaComposing: false,
+    qaDraft: '',
+    qaBusy: false,
   }
 
   var audio = {
@@ -2121,16 +2849,24 @@ body::after {
       '<main class="welcome">',
       '<div class="welcome-inner">',
       '<h1 class="hello" id="hello">' + escape(C.greeting()) + '</h1>',
+      '<div class="welcome-actions">',
       '<button class="cta" id="enter" type="button">',
       '<span class="dot"></span>',
       '<span>瞟一眼这货最近在干什么</span>',
       '</button>',
+      '<button class="cta cta-qa" id="enter-qa" type="button">',
+      '<span class="dot"></span>',
+      '<span>匿名问答</span>',
+      '</button>',
+      '<p class="welcome-note">匿名问一句，答完就贴在墙上</p>',
+      '</div>',
       '</div>',
       '</main>',
     ].join('')
 
     var hello = document.getElementById('hello')
     var button = document.getElementById('enter')
+    var qaButton = document.getElementById('enter-qa')
     clearInterval(greetingTimer)
     greetingTimer = setInterval(function () {
       if (state.view !== 'welcome' || !hello) return
@@ -2139,6 +2875,11 @@ body::after {
     }, 60000)
 
     button.addEventListener('click', onEnter)
+    if (qaButton) {
+      qaButton.addEventListener('click', function () {
+        openQa({ replace: false })
+      })
+    }
   }
 
   function ensureManifest() {
@@ -2328,17 +3069,40 @@ body::after {
     }
   }
 
-  async function refreshLikes() {
-    if (!CFG.flashEndpoint || !CFG.siteId) return
-    var likes = null
-    var comments = null
-    try { likes = await C.loadLikes() } catch (_) { /* 服务不可用时保持安静 */ }
-    try { comments = await C.loadCommentCounts() } catch (_) { /* 同上 */ }
-    if (likes) state.likes = likes
-    if (comments) state.commentCounts = comments
+  function persistStats() {
+    C.writeStatsCache({ likes: state.likes, commentCounts: state.commentCounts })
+  }
+
+  function applyStats(snapshot) {
+    if (!snapshot) return
+    if (snapshot.likes && typeof snapshot.likes === 'object') state.likes = snapshot.likes
+    if (snapshot.commentCounts && typeof snapshot.commentCounts === 'object') {
+      state.commentCounts = snapshot.commentCounts
+    }
     updateLikeUI()
     updateCommentCountsUI()
     updateStatsUI()
+  }
+
+  function startStats() {
+    if (state.statsPromise) return state.statsPromise
+    if (!CFG.flashEndpoint || !CFG.siteId) {
+      state.statsPromise = Promise.resolve(null)
+      return state.statsPromise
+    }
+    // 上一次访问留下的快照先顶上，首屏就有数字，网络回来再静默替换。
+    applyStats(C.readStatsCache())
+    state.statsPromise = C.fetchStats()
+      .then(function (snapshot) {
+        applyStats(snapshot)
+        return snapshot
+      })
+      .catch(function () { return null })
+    return state.statsPromise
+  }
+
+  async function refreshLikes() {
+    await startStats()
   }
 
   async function toggleLike(postId) {
@@ -2347,6 +3111,7 @@ body::after {
     try {
       var data = await C.setLike(postId, C.isLiked(postId))
       state.likes[postId] = data.count
+      persistStats()
       updateLikeUI()
       updateStatsUI()
     } catch (error) {
@@ -2356,6 +3121,243 @@ body::after {
         : '点赞失败，稍后再试')
     } finally {
       state.likeBusy[postId] = false
+    }
+  }
+
+  // ---------------------------------------------------------------- 匿名问答
+
+  var qaWarm = null
+
+  function qaHash() {
+    return '#p=' + state.secret + '&qa=1'
+  }
+
+  function qaTime(seconds) {
+    var value = Number(seconds) * 1000
+    if (!value) return ''
+    try {
+      return new Date(value).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric' })
+    } catch (_) {
+      return ''
+    }
+  }
+
+  function qaErrorMessage(error) {
+    var raw = error && error.message ? String(error.message) : ''
+    if (!raw) return '纸条没读出来，点下面重新看看'
+    if (/还没开张/.test(raw)) return raw
+    if (/还没更新/.test(raw)) return '问答接口还没更新，请主人重新部署 Worker'
+    if (/abort|aborted|timed out|timeout/i.test(raw)) return '纸条加载超时了，点下面重新看看'
+    if (/Failed to fetch|NetworkError|Load failed/i.test(raw)) return '连不上问答服务，检查网络后再试'
+    return raw
+  }
+
+  function questionsPromise() {
+    if (!qaWarm) {
+      qaWarm = C.loadQuestions()
+        .then(function (list) {
+          state.qaQuestions = Array.isArray(list) ? list : []
+          state.qaStatus = 'ready'
+          state.qaError = ''
+          return state.qaQuestions
+        })
+        .catch(function (error) {
+          qaWarm = null
+          throw error
+        })
+    }
+    return qaWarm
+  }
+
+  function warmQuestions() {
+    if (state.view !== 'welcome' && state.view !== 'qa') return
+    if (!CFG.flashEndpoint || !CFG.siteId) return
+    questionsPromise().catch(function () {})
+  }
+
+  function renderQaSheet() {
+    return [
+      '<div class="qa-sheet" id="qa-sheet" hidden>',
+      '<div class="qa-sheet-panel" role="dialog" aria-modal="true" aria-label="匿名提问">',
+      '<span class="qa-sheet-bar" aria-hidden="true"></span>',
+      '<div class="qa-sheet-head">',
+      '<span class="qa-sheet-title">写一张小纸条</span>',
+      '<button class="icon-btn qa-sheet-close" type="button" data-qa-cancel aria-label="关闭">' + CLOSE_SVG + '</button>',
+      '</div>',
+      '<textarea class="qa-input" id="qa-input" maxlength="280" rows="4" placeholder="想问什么都可以，主人会匿名回答…"></textarea>',
+      '<div class="qa-sheet-foot">',
+      '<span class="qa-count" id="qa-count">0 / 280</span>',
+      '<button class="qa-send" id="qa-send" type="button">递过去</button>',
+      '</div>',
+      '<p class="qa-hint">匿名 · 只显示回答 · 最多 280 字</p>',
+      '<p class="qa-notice" id="qa-notice" aria-live="polite"></p>',
+      '</div>',
+      '</div>',
+    ].join('')
+  }
+
+  function renderQa() {
+    state.view = 'qa'
+    clearInterval(greetingTimer)
+    var list = Array.isArray(state.qaQuestions) ? state.qaQuestions : []
+    var html = [
+      '<main class="qa">',
+      '<div class="qa-top">',
+      '<button class="icon-btn qa-back" type="button" data-qa-back aria-label="返回">' + LEFT_SVG + '</button>',
+      '<div class="qa-heading">',
+      '<h1>匿名问答</h1>',
+      '<p>想问什么都可以，答完的会贴在墙上</p>',
+      '</div>',
+      '<span class="qa-spacer" aria-hidden="true"></span>',
+      '</div>',
+    ]
+    if (state.qaStatus === 'loading' && !list.length) {
+      html.push('<div class="qa-empty">正在把纸条铺开…</div>')
+    } else if (state.qaError && !list.length) {
+      html.push('<div class="qa-empty">' + escape(state.qaError) +
+        '<br><button class="qa-retry" type="button" data-qa-retry>重新看看</button></div>')
+    } else if (!list.length) {
+      html.push('<div class="qa-empty"><span class="empty-dot"></span>墙上还空着<br>问第一个问题吧</div>')
+    } else {
+      html.push('<div class="qa-wall">')
+      list.forEach(function (item, index) {
+        var hue = C.qaHue(item.id)
+        var order = Math.min(index, 12)
+        html.push(
+          '<article class="qa-note" style="--qa-hue:' + hue + ';--qa-dur:' + (7 + (hue % 5)) + 's;--i:' + order + '">',
+          '<p class="qa-ask">' + escape(item.body) + '</p>',
+          '<p class="qa-answer">' + escape(item.answer) + '</p>',
+          '<div class="qa-meta"><span>匿名</span><time>' +
+            escape(qaTime(item.answeredAt || item.createdAt)) + '</time></div>',
+          '</article>'
+        )
+      })
+      html.push('</div>')
+    }
+    html.push(
+      '<div class="qa-dock"><button class="cta cta-qa qa-compose" type="button" data-qa-compose>' +
+        '<span class="dot"></span><span>写一张小纸条</span></button></div>',
+      '</main>',
+      renderQaSheet()
+    )
+    root.innerHTML = html.join('')
+    if (state.qaComposing) openQaSheet()
+  }
+
+  async function openQa(options) {
+    var opts = options || {}
+    if (!state.secret) return
+    state.view = 'qa'
+    state.qaError = ''
+    state.qaNotice = ''
+    var cached = null
+    try { cached = C.readQaCache() } catch (_) {}
+    if (cached && cached.length && !state.qaQuestions.length) state.qaQuestions = cached
+    state.qaStatus = state.qaQuestions.length ? 'ready' : 'loading'
+    renderQa()
+    try {
+      if (opts.replace) window.history.replaceState({ qa: true }, '', qaHash())
+      else window.history.pushState({ qa: true }, '', qaHash())
+    } catch (_) {}
+    try {
+      await questionsPromise()
+    } catch (error) {
+      state.qaError = qaErrorMessage(error)
+    }
+    state.qaStatus = 'ready'
+    if (state.view === 'qa') renderQa()
+  }
+
+  function closeQa() {
+    if (state.view !== 'qa') return
+    state.view = 'welcome'
+    state.qaComposing = false
+    try { window.history.replaceState({ qa: false }, '', '#p=' + state.secret) } catch (_) {}
+    renderWelcome()
+  }
+
+  function openQaSheet() {
+    var sheet = document.getElementById('qa-sheet')
+    if (!sheet) return
+    state.qaComposing = true
+    sheet.hidden = false
+    var input = document.getElementById('qa-input')
+    if (input) {
+      input.value = state.qaDraft || ''
+      try { input.focus() } catch (_) {}
+    }
+    updateQaCount()
+    var notice = document.getElementById('qa-notice')
+    if (notice) notice.textContent = state.qaNotice || ''
+    window.requestAnimationFrame(function () {
+      if (sheet && state.qaComposing) sheet.classList.add('is-open')
+    })
+  }
+
+  function closeQaSheet() {
+    state.qaComposing = false
+    var sheet = document.getElementById('qa-sheet')
+    var input = document.getElementById('qa-input')
+    if (input) state.qaDraft = input.value
+    if (!sheet) return
+    sheet.classList.remove('is-open')
+    setTimeout(function () {
+      if (!state.qaComposing && sheet) sheet.hidden = true
+    }, 220)
+  }
+
+  function updateQaCount() {
+    var input = document.getElementById('qa-input')
+    var node = document.getElementById('qa-count')
+    if (!input || !node) return
+    var length = Array.from(input.value || '').length
+    node.textContent = length + ' / 280'
+    node.classList.toggle('is-full', length > 260)
+  }
+
+  function onDocumentInput(event) {
+    var target = event.target
+    if (!target || target.id !== 'qa-input') return
+    state.qaDraft = target.value
+    updateQaCount()
+  }
+
+  async function sendQuestion() {
+    var input = document.getElementById('qa-input')
+    if (!input || state.qaBusy) return
+    var text = String(input.value || '').trim()
+    state.qaDraft = text
+    if (!text) {
+      showToast('先写点什么吧')
+      return
+    }
+    if (Array.from(text).length > 280) {
+      showToast('一张纸条最多 280 字')
+      return
+    }
+    state.qaBusy = true
+    var button = document.getElementById('qa-send')
+    if (button) {
+      button.disabled = true
+      button.textContent = '递过去…'
+    }
+    try {
+      await C.askQuestion(text)
+      state.qaDraft = ''
+      state.qaNotice = ''
+      closeQaSheet()
+      showToast('纸条递过去了，等主人回信')
+    } catch (error) {
+      state.qaNotice = (error && error.message) || '纸条没递出去，再试一次'
+    } finally {
+      state.qaBusy = false
+      var fresh = document.getElementById('qa-send')
+      if (fresh) {
+        fresh.disabled = false
+        fresh.textContent = '递过去'
+      }
+      var notice = document.getElementById('qa-notice')
+      if (notice) notice.textContent = state.qaNotice || ''
     }
   }
 
@@ -2535,6 +3537,7 @@ body::after {
       if (!state.currentPost || state.currentPost.id !== id) return
       state.comments = Array.isArray(list) ? list : []
       state.commentCounts[id] = state.comments.length
+      persistStats()
     } catch (error) {
       if (state.currentPost && state.currentPost.id === id) {
         var raw = error && error.message ? String(error.message) : ''
@@ -2572,6 +3575,7 @@ body::after {
       if (!state.currentPost || state.currentPost.id !== post.id) return
       state.comments.push(comment)
       state.commentCounts[post.id] = state.comments.length
+      persistStats()
       state.commentsError = ''
       renderComments()
       updateCommentCountsUI()
@@ -3000,6 +4004,38 @@ body::after {
   }
 
   function onDocumentClick(event) {
+    var qaBack = event.target.closest && event.target.closest('[data-qa-back]')
+    if (qaBack) {
+      closeQa()
+      return
+    }
+    var qaRetry = event.target.closest && event.target.closest('[data-qa-retry]')
+    if (qaRetry) {
+      qaWarm = null
+      state.qaError = ''
+      openQa({ replace: true })
+      return
+    }
+    var qaCompose = event.target.closest && event.target.closest('[data-qa-compose]')
+    if (qaCompose) {
+      openQaSheet()
+      return
+    }
+    var qaCancel = event.target.closest && event.target.closest('[data-qa-cancel]')
+    if (qaCancel) {
+      closeQaSheet()
+      return
+    }
+    var qaSend = event.target.closest && event.target.closest('.qa-send')
+    if (qaSend) {
+      sendQuestion()
+      return
+    }
+    var qaSheet = document.getElementById('qa-sheet')
+    if (qaSheet && !qaSheet.hidden && event.target === qaSheet) {
+      closeQaSheet()
+      return
+    }
     var thumb = event.target.closest && event.target.closest('.thumb')
     if (thumb) {
       var postId = thumb.getAttribute('data-post')
@@ -3044,6 +4080,35 @@ body::after {
   }
 
   function onKeyDown(event) {
+    var sheet = document.getElementById('qa-sheet')
+    if (sheet && !sheet.hidden) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeQaSheet()
+        return
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        event.preventDefault()
+        sendQuestion()
+        return
+      }
+      if (event.key === 'Tab') {
+        var panel = sheet.querySelector('.qa-sheet-panel')
+        var focusable = panel ? panel.querySelectorAll('button, textarea, input, [href]') : []
+        if (focusable.length) {
+          var first = focusable[0]
+          var last = focusable[focusable.length - 1]
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault()
+            last.focus()
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault()
+            first.focus()
+          }
+        }
+      }
+      return
+    }
     if (!document.getElementById('overlay')) return
     if (event.key === 'Escape') {
       event.preventDefault()
@@ -3058,6 +4123,7 @@ body::after {
   }
 
   function onVisibility() {
+    document.documentElement.classList.toggle('is-hidden', document.hidden)
     if (document.hidden) {
       stopMusic()
       if (state.flashViewing) {
@@ -3070,7 +4136,16 @@ body::after {
   }
 
   function onPopState() {
-    if (document.getElementById('overlay')) closeDetail({ fromPop: true })
+    if (document.getElementById('overlay')) {
+      closeDetail({ fromPop: true })
+      return
+    }
+    var entry = C.parseHash()
+    if (entry.qa && state.view !== 'qa') {
+      openQa({ replace: true })
+      return
+    }
+    if (!entry.qa && state.view === 'qa') closeQa()
   }
 
   function preventSave(event) {
@@ -3083,6 +4158,7 @@ body::after {
     document.addEventListener('click', onDocumentClick)
     document.addEventListener('keydown', onKeyDown)
     document.addEventListener('visibilitychange', onVisibility)
+    document.addEventListener('input', onDocumentInput)
     document.addEventListener('contextmenu', preventSave)
     document.addEventListener('dragstart', preventSave)
     window.addEventListener('popstate', onPopState)
@@ -3097,16 +4173,25 @@ body::after {
     state.view = 'welcome'
     setPalette({ palette: 'aurora' })
     renderWelcome()
+    if (entry.qa) openQa({ replace: true })
     // Warm the manifest while the greeting is on screen; the click still owns
     // the transition so it also doubles as the audio gesture.
     setTimeout(function () {
-      if (state.view === 'welcome') ensureManifest().catch(function () {})
+      if (state.view !== 'welcome' && state.view !== 'qa') return
+      ensureManifest().catch(function () {})
+      // 点赞/评论数不依赖解密后的内容：在欢迎页阶段就和 manifest 一起拉，
+      // 等点进朋友圈时数字通常已经就位，首屏之后不再补一次。
+      startStats()
+      // 问答墙也在欢迎页阶段预热，点进问答页时通常直接有内容。
+      warmQuestions()
     }, 60)
 
     window.__MOMENTS_APP__ = {
       state: state,
       openPost: openPost,
       closeDetail: closeDetail,
+      openQa: openQa,
+      closeQa: closeQa,
       playMusic: playMusic,
       stopMusic: stopMusic,
     }
